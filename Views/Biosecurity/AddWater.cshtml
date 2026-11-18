@@ -1,0 +1,104 @@
+@model FarmShield.ViewModels.WaterCreateViewModel
+@{
+    ViewData["Title"] = "Record Water Test";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold mb-1"><i class="fa-solid fa-flask-vial text-primary me-2"></i>Drinking Water Laboratory Test</h3>
+                <p class="text-muted small m-0">Log free chlorine, pH level, TDS, and microbiological analysis.</p>
+            </div>
+            <a asp-action="FeedWater" class="btn btn-outline-secondary btn-sm">
+                <i class="fa-solid fa-arrow-left me-1"></i> Back
+            </a>
+        </div>
+
+        <div class="card border-0 shadow-sm p-4 p-md-5" style="border-radius: var(--radius-md);">
+            <form asp-action="AddWater" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small mb-4"></div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="FarmId" class="form-label">Facility</label>
+                        <select asp-for="FarmId" class="form-select">
+                            @foreach (var farm in Model.AvailableFarms)
+                            {
+                                <option value="@farm.FarmId">@farm.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="TestingDate" class="form-label"></label>
+                        <input asp-for="TestingDate" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="WaterSource" class="form-label"></label>
+                    <input asp-for="WaterSource" class="form-control" placeholder="Deep Aquifer Borewell #1 / Storage Tank" />
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label asp-for="PhLevel" class="form-label"></label>
+                        <input asp-for="PhLevel" class="form-control" step="0.1" />
+                        <small class="text-muted">Target: 6.5 - 7.2</small>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="ChlorinePpm" class="form-label"></label>
+                        <div class="input-group">
+                            <input asp-for="ChlorinePpm" class="form-control" step="0.1" />
+                            <span class="input-group-text">ppm</span>
+                        </div>
+                        <small class="text-muted">Target: 2.0 - 4.0 ppm</small>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="TdsLevel" class="form-label"></label>
+                        <div class="input-group">
+                            <input asp-for="TdsLevel" class="form-control" />
+                            <span class="input-group-text">ppm</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="ColiformBacterialTestResult" class="form-label"></label>
+                        <input asp-for="ColiformBacterialTestResult" class="form-control" placeholder="0 CFU / 100ml (Negative)" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="SanitizationMethod" class="form-label"></label>
+                        <input asp-for="SanitizationMethod" class="form-control" placeholder="Chlorination & In-line UV" />
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label asp-for="TestedBy" class="form-label"></label>
+                        <input asp-for="TestedBy" class="form-control" />
+                    </div>
+                    <div class="col-md-6 d-flex align-items-center">
+                        <div class="form-check mt-3">
+                            <input asp-for="IsPotableSafe" class="form-check-input" />
+                            <label asp-for="IsPotableSafe" class="form-check-label fw-bold text-success">Water Certified Safe / Potable</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Remarks" class="form-label"></label>
+                    <textarea asp-for="Remarks" class="form-control" rows="2" placeholder="Lab certificate number, line flushing details..."></textarea>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="FeedWater" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-forest px-4">Save Water Test</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+

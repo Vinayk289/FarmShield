@@ -1,0 +1,115 @@
+@model FarmShield.ViewModels.FeedCreateViewModel
+@{
+    ViewData["Title"] = "Verify Feed Consignment";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold mb-1"><i class="fa-solid fa-wheat-awn text-success me-2"></i>Feed Consignment Biosecurity Inspection</h3>
+                <p class="text-muted small m-0">Validate moisture content, mycotoxin certification, and silo vermin-proofing.</p>
+            </div>
+            <a asp-action="FeedWater" class="btn btn-outline-secondary btn-sm">
+                <i class="fa-solid fa-arrow-left me-1"></i> Back
+            </a>
+        </div>
+
+        <div class="card border-0 shadow-sm p-4 p-md-5" style="border-radius: var(--radius-md);">
+            <form asp-action="AddFeed" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small mb-4"></div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="FarmId" class="form-label">Facility</label>
+                        <select asp-for="FarmId" class="form-select">
+                            @foreach (var farm in Model.AvailableFarms)
+                            {
+                                <option value="@farm.FarmId">@farm.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="InspectionDate" class="form-label"></label>
+                        <input asp-for="InspectionDate" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="FeedType" class="form-label"></label>
+                        <input asp-for="FeedType" class="form-control" placeholder="Grower Pellets / Pre-Starter Mash" />
+                        <span asp-validation-for="FeedType" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="BatchLotNumber" class="form-label"></label>
+                        <input asp-for="BatchLotNumber" class="form-control fw-bold" placeholder="LOT-2025-SW01" />
+                        <span asp-validation-for="BatchLotNumber" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="SupplierName" class="form-label"></label>
+                        <input asp-for="SupplierName" class="form-control" placeholder="Certified Feed Miller Ltd" />
+                        <span asp-validation-for="SupplierName" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="QuantityKg" class="form-label"></label>
+                        <div class="input-group">
+                            <input asp-for="QuantityKg" class="form-control" />
+                            <span class="input-group-text">kg</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-3 mb-3 rounded bg-light border">
+                    <h6 class="fw-bold text-success mb-2">Quality & Physical Condition Checklist</h6>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="form-check">
+                                <input asp-for="QualityCheckPassed" class="form-check-input" />
+                                <label asp-for="QualityCheckPassed" class="form-check-label small">Overall Passed</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check">
+                                <input asp-for="MoistureLevelOk" class="form-check-input" />
+                                <label asp-for="MoistureLevelOk" class="form-check-label small">Moisture &lt; 13.5%</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check">
+                                <input asp-for="NoMoldDetected" class="form-check-input" />
+                                <label asp-for="NoMoldDetected" class="form-check-label small">Zero Mold / Fungi</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label asp-for="StorageSiloCondition" class="form-label"></label>
+                        <input asp-for="StorageSiloCondition" class="form-control" placeholder="Dry, airtight, vermin-screened" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="InspectedBy" class="form-label"></label>
+                        <input asp-for="InspectedBy" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Remarks" class="form-label"></label>
+                    <textarea asp-for="Remarks" class="form-control" rows="2" placeholder="Mycotoxin lab certificate number, smell, texture..."></textarea>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="FeedWater" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-forest px-4">Save Feed Record</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+

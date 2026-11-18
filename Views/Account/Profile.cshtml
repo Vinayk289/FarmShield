@@ -1,0 +1,88 @@
+@model FarmShield.ViewModels.ProfileViewModel
+@{
+    ViewData["Title"] = "User Profile & Security";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold mb-1"><i class="fa-solid fa-user-shield text-success me-2"></i>User Profile</h3>
+                <p class="text-muted small m-0">Manage your administrative credentials and security settings.</p>
+            </div>
+            <span class="badge bg-success bg-opacity-25 text-success fs-6 px-3 py-2">
+                <i class="fa-solid fa-id-badge me-1"></i> @Model.RoleName
+            </span>
+        </div>
+
+        <div class="card border-0 shadow-sm p-4 mb-4" style="border-radius: var(--radius-md);">
+            <h5 class="fw-bold mb-3 border-bottom pb-2">Profile Information</h5>
+            <form asp-action="Profile" method="post">
+                @Html.AntiForgeryToken()
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="FullName" class="form-label"></label>
+                        <input asp-for="FullName" class="form-control" />
+                        <span asp-validation-for="FullName" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Email" class="form-label"></label>
+                        <input asp-for="Email" class="form-control bg-light" readonly />
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="PhoneNumber" class="form-label"></label>
+                        <input asp-for="PhoneNumber" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Assigned Facility</label>
+                        <input value="@Model.FarmName" class="form-control bg-light" readonly />
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label asp-for="Designation" class="form-label"></label>
+                        <input asp-for="Designation" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Specialization" class="form-label"></label>
+                        <input asp-for="Specialization" class="form-control" />
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-forest">
+                    <i class="fa-solid fa-floppy-disk me-1"></i> Save Changes
+                </button>
+            </form>
+        </div>
+
+        <div class="card border-0 shadow-sm p-4" style="border-radius: var(--radius-md);">
+            <h5 class="fw-bold mb-3 border-bottom pb-2">Change Password</h5>
+            <form asp-action="ChangePassword" method="post">
+                @Html.AntiForgeryToken()
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Current Password</label>
+                        <input type="password" name="CurrentPassword" class="form-control" required />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">New Password</label>
+                        <input type="password" name="NewPassword" class="form-control" required />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Confirm Password</label>
+                        <input type="password" name="ConfirmPassword" class="form-control" required />
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-outline-dark">
+                    <i class="fa-solid fa-key me-1"></i> Update Password
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+

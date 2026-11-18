@@ -1,0 +1,131 @@
+@model FarmShield.ViewModels.FarmCreateEditViewModel
+@{
+    ViewData["Title"] = "Register New Facility";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold mb-1"><i class="fa-solid fa-plus-circle text-success me-2"></i>Register Agricultural Facility</h3>
+                <p class="text-muted small m-0">Establish a new farm profile in the digital biosecurity monitoring registry.</p>
+            </div>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                <i class="fa-solid fa-arrow-left me-1"></i> Back to Directory
+            </a>
+        </div>
+
+        <div class="card border-0 shadow-sm p-4 p-md-5" style="border-radius: var(--radius-md);">
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small mb-4"></div>
+
+                <h5 class="fw-bold text-success mb-3 border-bottom pb-2">
+                    <i class="fa-solid fa-building me-2"></i>Facility Identification
+                </h5>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-8">
+                        <label asp-for="Name" class="form-label"></label>
+                        <input asp-for="Name" class="form-control" placeholder="e.g. Oak Ridge Swine Complex" />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="FarmType" class="form-label"></label>
+                        <select asp-for="FarmType" class="form-select">
+                            <option value="1">Pig Farm</option>
+                            <option value="2">Poultry Farm</option>
+                            <option value="3">Mixed Production</option>
+                        </select>
+                        <span asp-validation-for="FarmType" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label asp-for="OwnerName" class="form-label"></label>
+                        <input asp-for="OwnerName" class="form-control" />
+                        <span asp-validation-for="OwnerName" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="BioSafetyLevel" class="form-label"></label>
+                        <select asp-for="BioSafetyLevel" class="form-select">
+                            <option value="1">Level 1 (Standard Bio-Exclusion)</option>
+                            <option value="2" selected>Level 2 (Enhanced Barrier & Showers)</option>
+                            <option value="3">Level 3 (Maximum SPF / High Containment)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <h5 class="fw-bold text-success mb-3 border-bottom pb-2">
+                    <i class="fa-solid fa-map-location-dot me-2"></i>Location & Contact Coordinates
+                </h5>
+
+                <div class="mb-3">
+                    <label asp-for="Address" class="form-label"></label>
+                    <input asp-for="Address" class="form-control" placeholder="784 Agriculture Parkway, Suite B" />
+                    <span asp-validation-for="Address" class="text-danger small"></span>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <label asp-for="District" class="form-label"></label>
+                        <input asp-for="District" class="form-control" placeholder="County / District" />
+                        <span asp-validation-for="District" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="State" class="form-label"></label>
+                        <input asp-for="State" class="form-control" placeholder="State / Province" />
+                        <span asp-validation-for="State" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="ContactNumber" class="form-label"></label>
+                        <input asp-for="ContactNumber" class="form-control" placeholder="+1 (555) 012-3456" />
+                        <span asp-validation-for="ContactNumber" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <h5 class="fw-bold text-success mb-3 border-bottom pb-2">
+                    <i class="fa-solid fa-chart-pie me-2"></i>Capacity & Operational Parameters
+                </h5>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <label asp-for="Email" class="form-label"></label>
+                        <input asp-for="Email" class="form-control" placeholder="farm@agroshield.com" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="FarmAreaAcres" class="form-label"></label>
+                        <input asp-for="FarmAreaAcres" class="form-control" />
+                        <span asp-validation-for="FarmAreaAcres" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="TotalCapacity" class="form-label"></label>
+                        <input asp-for="TotalCapacity" class="form-control" />
+                        <span asp-validation-for="TotalCapacity" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Description" class="form-label"></label>
+                    <textarea asp-for="Description" class="form-control" rows="3" placeholder="Key perimeter infrastructure, fencing dimensions, automated filtration systems..."></textarea>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="ImageUrl" class="form-label"></label>
+                    <input asp-for="ImageUrl" class="form-control" placeholder="https://images.unsplash.com/photo-..." />
+                    <small class="text-muted">Leave empty to use high-resolution agricultural default imagery.</small>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-forest px-4">
+                        <i class="fa-solid fa-check me-1"></i> Register Farm & Generate ID
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+

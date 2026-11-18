@@ -1,0 +1,114 @@
+@model FarmShield.ViewModels.CleaningCreateViewModel
+@{
+    ViewData["Title"] = "Log Sanitation Round";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold mb-1"><i class="fa-solid fa-pump-soap text-primary me-2"></i>Log Cleaning & Disinfection Round</h3>
+                <p class="text-muted small m-0">Record chemical brand, dilution, and facility areas sanitized.</p>
+            </div>
+            <a asp-action="Cleaning" class="btn btn-outline-secondary btn-sm">
+                <i class="fa-solid fa-arrow-left me-1"></i> Back to Logs
+            </a>
+        </div>
+
+        <div class="card border-0 shadow-sm p-4 p-md-5" style="border-radius: var(--radius-md);">
+            <form asp-action="AddCleaning" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small mb-4"></div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="FarmId" class="form-label"></label>
+                        <select asp-for="FarmId" class="form-select">
+                            @foreach (var farm in Model.AvailableFarms)
+                            {
+                                <option value="@farm.FarmId">@farm.Name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="CleaningDate" class="form-label"></label>
+                        <input asp-for="CleaningDate" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="FacilityArea" class="form-label"></label>
+                        <input asp-for="FacilityArea" class="form-control" placeholder="Farrowing House A / Broiler Shed 1" />
+                        <span asp-validation-for="FacilityArea" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="EquipmentSanitized" class="form-label"></label>
+                        <input asp-for="EquipmentSanitized" class="form-control" placeholder="Drinkers, Feeders, Slats, Weigh Crate" />
+                        <span asp-validation-for="EquipmentSanitized" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="DisinfectantUsed" class="form-label"></label>
+                        <input asp-for="DisinfectantUsed" class="form-control" placeholder="e.g. Virkon S, Glutaraldehyde-QAC" />
+                        <span asp-validation-for="DisinfectantUsed" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="DilutionRatio" class="form-label"></label>
+                        <input asp-for="DilutionRatio" class="form-control" placeholder="e.g. 1:100 or 1:200" />
+                        <span asp-validation-for="DilutionRatio" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="p-3 mb-3 rounded bg-light border">
+                    <h6 class="fw-bold text-success mb-2"><i class="fa-solid fa-check-double me-1"></i>Decontamination Stations Checklist</h6>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="form-check">
+                                <input asp-for="VehicleDisinfectionStation" class="form-check-input" />
+                                <label asp-for="VehicleDisinfectionStation" class="form-check-label small"></label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check">
+                                <input asp-for="FootbathRefreshed" class="form-check-input" />
+                                <label asp-for="FootbathRefreshed" class="form-check-label small"></label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check">
+                                <input asp-for="HandwashingSuppliesChecked" class="form-check-input" />
+                                <label asp-for="HandwashingSuppliesChecked" class="form-check-label small"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label asp-for="PerformedBy" class="form-label"></label>
+                        <input asp-for="PerformedBy" class="form-control" />
+                        <span asp-validation-for="PerformedBy" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Notes" class="form-label"></label>
+                        <input asp-for="Notes" class="form-control" placeholder="Contact time, temperature, dry-out duration..." />
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Cleaning" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-forest px-4">
+                        <i class="fa-solid fa-save me-1"></i> Save Sanitation Log
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+

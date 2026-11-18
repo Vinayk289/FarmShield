@@ -1,0 +1,171 @@
+@model FarmShield.ViewModels.VaccinationListViewModel
+@{
+    ViewData["Title"] = "Vaccination Program Management";
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">
+            <i class="fa-solid fa-syringe text-info me-2"></i>Vaccination Program & Cold-Chain Management
+        </h2>
+        <p class="text-muted m-0">Mandatory herd & flock immunizations, lot numbers, administration routes, and booster reminders.</p>
+    </div>
+    <a asp-action="Schedule" asp-route-farmId="@Model.SelectedFarmId" class="btn btn-forest shadow-sm text-nowrap">
+        <i class="fa-solid fa-plus-circle me-1"></i> Administer / Schedule Vaccine
+    </a>
+</div>
+
+<!-- Vaccination KPI Stats -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-4">
+        <div class="stat-card p-3 text-center">
+            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.68rem;">Completed Immunizations</small>
+            <div class="fs-2 fw-bold text-success">@Model.TotalCompleted</div>
+            <small class="text-muted">Recorded & Logged</small>
+        </div>
+    </div>
+    <div class="col-6 col-md-4">
+        <div class="stat-card p-3 text-center">
+            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.68rem;">Upcoming Scheduled</small>
+            <div class="fs-2 fw-bold text-info">@Model.TotalScheduled</div>
+            <small class="text-muted">Booster Reminders Active</small>
+        </div>
+    </div>
+    <div class="col-6 col-md-4">
+        <div class="stat-card p-3 text-center">
+            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.68rem;">Overdue Vaccines</small>
+            <div class="fs-2 fw-bold @(Model.TotalOverdue > 0 ? "text-danger" : "text-muted")">@Model.TotalOverdue</div>
+            <small class="text-muted">Requires Immediate Action</small>
+        </div>
+    </div>
+</div>
+
+<!-- Filter -->
+<div class="card border-0 shadow-sm p-3 mb-4" style="border-radius: var(--radius-md);">
+    <form method="get" asp-action="Index" class="row g-2 align-items-center">
+        <div class="col-md-6">
+            <select name="farmId" class="form-select">
+                <option value="">All Facilities</option>
+                @foreach (var farm in Model.AvailableFarms)
+                {
+                    <option value="@farm.FarmId" selected="@(Model.SelectedFarmId == farm.FarmId)">@farm.Name</option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <select name="statusFilter" class="form-select">
+                <option value="">All Immunization Statuses</option>
+                <option value="2" selected="@(Model.StatusFilter == FarmShield.Models.Enums.VaccinationStatus.Completed)">Completed</option>
+                <option value="1" selected="@(Model.StatusFilter == FarmShield.Models.Enums.VaccinationStatus.Scheduled)">Scheduled</option>
+                <option value="3" selected="@(Model.StatusFilter == FarmShield.Models.Enums.VaccinationStatus.Overdue)">Overdue</option>
+            </select>
+        </div>
+
+        <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-forest flex-grow-1">Filter</button>
+            <a asp-action="Index" class="btn btn-outline-secondary"><i class="fa-solid fa-rotate-left"></i></a>
+        </div>
+    </form>
+</div>
+
+<!-- Vaccinations Table -->
+<div class="card border-0 shadow-sm overflow-hidden" style="border-radius: var(--radius-md);">
+    <div class="table-responsive">
+        <table class="table custom-table mb-0">
+            <thead>
+                <tr>
+                    <th>Vaccine Brand</th>
+                    <th>Facility</th>
+                    <th>Target Disease</th>
+                    <th>Recipient Animal / Flock</th>
+                    <th>Batch Lot #</th>
+                    <th>Administration Date</th>
+                    <th>Booster Due Date</th>
+                    <th>Route & Dose</th>
+                    <th>Administered By</th>
+                    <th>Status</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Vaccinations.Any())
+                {
+                    <tr>
+                        <td colspan="11" class="text-center py-5 text-muted">
+                            <i class="fa-solid fa-syringe fs-2 mb-2 text-secondary"></i>
+                            <div>Zero vaccination records found.</div>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var vac in Model.Vaccinations)
+                    {
+                        <tr>
+                            <td class="fw-bold text-dark">@vac.VaccineName</td>
+                            <td><small class="badge bg-light text-dark border">@vac.Farm?.Name</small></td>
+                            <td><span class="badge bg-info bg-opacity-10 text-info">@vac.DiseaseTargeted</span></td>
+                            <td>
+                                @if (vac.Animal != null)
+                                {
+                                    <span class="badge bg-light text-dark border">Pig @vac.Animal.TagNumber</span>
+                                }
+                                else if (vac.PoultryBatch != null)
+                                {
+                                    <span class="badge bg-light text-dark border">Flock @vac.PoultryBatch.BatchCode</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">Mass Facility Dose</span>
+                                }
+                            </td>
+                            <td><span class="badge bg-secondary">@vac.BatchLotNumber</span></td>
+                            <td><small class="fw-bold">@vac.VaccinationDate.ToString("yyyy-MM-dd")</small></td>
+                            <td>
+                                @if (vac.NextDueDate.HasValue)
+                                {
+                                    <small class="@(vac.NextDueDate.Value < DateTime.UtcNow && vac.Status != FarmShield.Models.Enums.VaccinationStatus.Completed ? "text-danger fw-bold" : "text-muted")">
+                                        @vac.NextDueDate.Value.ToString("yyyy-MM-dd")
+                                    </small>
+                                }
+                                else
+                                {
+                                    <small class="text-muted">N/A</small>
+                                }
+                            </td>
+                            <td><small>@vac.DoseAdministered (@vac.Route)</small></td>
+                            <td><small class="text-muted">@vac.AdministeredBy</small></td>
+                            <td>
+                                @if (vac.Status == FarmShield.Models.Enums.VaccinationStatus.Completed)
+                                {
+                                    <span class="badge bg-success"><i class="fa-solid fa-check me-1"></i> Completed</span>
+                                }
+                                else if (vac.Status == FarmShield.Models.Enums.VaccinationStatus.Scheduled)
+                                {
+                                    <span class="badge bg-info text-white"><i class="fa-solid fa-clock me-1"></i> Scheduled</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger"><i class="fa-solid fa-triangle-exclamation me-1"></i> Overdue</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                @if (vac.Status == FarmShield.Models.Enums.VaccinationStatus.Scheduled)
+                                {
+                                    <form asp-action="MarkCompleted" asp-route-id="@vac.VaccinationId" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Mark Administered">
+                                            <i class="fa-solid fa-check"></i> Complete
+                                        </button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+

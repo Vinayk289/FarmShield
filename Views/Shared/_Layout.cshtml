@@ -1,0 +1,279 @@
+@inject FarmShield.Data.ApplicationDbContext DbContext
+@{
+    var currentUser = await UserManager.GetUserAsync(User);
+    var unreadNotificationsCount = currentUser != null
+        ? DbContext.Notifications.Count(n => !n.IsRead && (n.FarmId == currentUser.AssignedFarmId || n.FarmId == null))
+        : 0;
+    var currentRole = currentUser?.RoleName ?? (User.IsInRole(AppRoles.SuperAdmin) ? AppRoles.SuperAdmin : AppRoles.FarmManager);
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - FarmShield Biosecurity Portal</title>
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <!-- Custom Theme CSS -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar-wrapper">
+            <div class="sidebar-brand">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-shield-virus"></i>
+                </div>
+                <div>
+                    <h5>FarmShield</h5>
+                    <small>Biosecurity Portal</small>
+                </div>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li class="menu-header">Executive Control</li>
+                <li class="menu-item">
+                    <a asp-controller="Dashboard" asp-action="Index" class="menu-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")">
+                        <i class="fa-solid fa-chart-line"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+
+                <li class="menu-header">Farm & Livestock</li>
+                <li class="menu-item">
+                    <a asp-controller="Farms" asp-action="Index" class="menu-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Farms" ? "active" : "")">
+                        <i class="fa-solid fa-tractor"></i>
+                        <span>Farms Directory</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a asp-controller="Pigs" asp-action="Index" class="menu-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Pigs" ? "active" : "")">
+                        <i class="fa-solid fa-piggy-bank"></i>
+                        <span>Pig Herd Management</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a asp-controller="Poultry" asp-action="Index" class="menu-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Poultry" ? "active" : "")">
+                        <i class="fa-solid fa-feather-pointed"></i>
+                        <span>Poultry Batches</span>
+                    </a>
+                </li>
+
+                <li class="menu-header">Biosecurity Engine (6 Pillars)</li>
+                <li class="menu-item">
+                    <a asp-controller="Biosecurity" asp-action="Index" class="menu-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Biosecurity" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span>Biosecurity Overview</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a asp-controller="Biosecurity" asp-action="Visitors" class="menu-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Visitors" ? "active" : "")">
+                        <i class="fa-solid fa-id-card-clip"></i>
+                        <span>Visitors & Gate Entry</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a asp-controller="Biosecurity" asp-action="Cleaning" class="menu-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Cleaning" ? "active" : "")">
+                        <i class="fa-solid fa-pump-soap"></i>
+                        <span>Cleaning & Sanitation</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a asp-controller="Biosecurity" asp-action="FeedWater" class="menu-link @(ViewContext.RouteData.Values["action"]?.ToString() == "FeedWater" ? "active" : "")">
+                        <i class="fa-solid fa-faucet-drip"></i>
+                        <span>Feed & Water Safety</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a asp-controller="Biosecurity" asp-action="PestControl" class="menu-link @(ViewContext.RouteData.Values["action"]?.ToString() == "PestControl" ? "active" : "")">
+                        <i class="fa-solid fa-bug-slash"></i>
+                        <span>Pest & Rodent Control</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a asp-controller="Biosecurity" asp-action="WasteManagement" class="menu-link @(ViewContext.RouteData.Values["action"]?.ToString() == "WasteManagement" ? "active" : "")">
+                        <i class="fa-solid fa-dumpster-fire"></i>
+                        <span>Waste & Carcass Containment</span>
+                    </a>
+                </li>
+
+                <li class="menu-header">Audits & Health Defense</li>
+                <li class="menu-item">
+                    <a asp-controller="Inspections" asp-action="Index" class="menu-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Inspections" ? "active" : "")">
+                        <i class="fa-solid fa-clipboard-check"></i>
+                        <span>Digital Audits & Audits</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a asp-controller="Diseases" asp-action="Index" class="menu-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Diseases" ? "active" : "")">
+                        <i class="fa-solid fa-virus-covid"></i>
+                        <span>Disease Surveillance</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a asp-controller="Vaccinations" asp-action="Index" class="menu-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Vaccinations" ? "active" : "")">
+                        <i class="fa-solid fa-syringe"></i>
+                        <span>Vaccination Tracking</span>
+                    </a>
+                </li>
+
+                <li class="menu-header">Intelligence & Analytics</li>
+                <li class="menu-item">
+                    <a asp-controller="Reports" asp-action="Index" class="menu-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Reports" ? "active" : "")">
+                        <i class="fa-solid fa-file-invoice"></i>
+                        <span>Reports & Exports</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a asp-controller="Notifications" asp-action="Index" class="menu-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Notifications" ? "active" : "")">
+                        <i class="fa-solid fa-bell"></i>
+                        <span>Alerts & Notifications</span>
+                        @if (unreadNotificationsCount > 0)
+                        {
+                            <span class="badge bg-danger menu-badge">@unreadNotificationsCount</span>
+                        }
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-version">
+                <small>FarmShield v3.0 Enterprise</small>
+            </div>
+        </aside>
+
+        <!-- Main Page Content Wrapper -->
+        <div id="page-content-wrapper">
+            <!-- Top Navbar -->
+            <nav class="top-navbar">
+                <div class="topbar-left">
+                    <button class="btn" id="sidebarToggle" title="Toggle Sidebar">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <span class="topbar-breadcrumb d-none d-md-flex">
+                        <i class="fa-solid fa-leaf text-success me-1"></i> Biosecurity Command System
+                    </span>
+                </div>
+
+                <div class="topbar-right">
+                    <!-- Quick Demo Role Switcher -->
+                    <div class="dropdown demo-switcher d-none d-lg-block">
+                        <button class="btn btn-sm btn-outline-success dropdown-toggle fw-semibold" type="button" data-bs-toggle="dropdown">
+                            <i class="fa-solid fa-user-gear me-1"></i> Demo: @currentRole
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2" style="border-radius: var(--radius-sm); min-width: 240px;">
+                            <li><h6 class="dropdown-header small text-muted">Switch Simulated Role</h6></li>
+                            <li><a class="dropdown-item py-2" asp-controller="Account" asp-action="QuickLogin" asp-route-role="admin"><i class="fa-solid fa-crown text-primary me-2"></i>Super Admin (Dr. Wright)</a></li>
+                            <li><a class="dropdown-item py-2" asp-controller="Account" asp-action="QuickLogin" asp-route-role="owner"><i class="fa-solid fa-user-tie text-success me-2"></i>Farm Owner (Marcus S.)</a></li>
+                            <li><a class="dropdown-item py-2" asp-controller="Account" asp-action="QuickLogin" asp-route-role="manager"><i class="fa-solid fa-clipboard-user text-warning me-2"></i>Farm Manager (Sarah J.)</a></li>
+                            <li><a class="dropdown-item py-2" asp-controller="Account" asp-action="QuickLogin" asp-route-role="vet"><i class="fa-solid fa-user-doctor text-info me-2"></i>Veterinary Officer (Dr. Elena)</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Notification Bell -->
+                    <a asp-controller="Notifications" asp-action="Index" class="topbar-bell" title="Notifications">
+                        <i class="fa-solid fa-bell"></i>
+                        @if (unreadNotificationsCount > 0)
+                        {
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:0.6rem;">
+                                @unreadNotificationsCount
+                            </span>
+                        }
+                    </a>
+
+                    <!-- User Profile -->
+                    @if (currentUser != null)
+                    {
+                        <div class="dropdown">
+                            <div class="navbar-user-card" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="user-avatar">
+                                    @(string.IsNullOrEmpty(currentUser.FullName) ? "U" : currentUser.FullName.Substring(0, 1).ToUpper())
+                                </div>
+                                <div class="user-info d-none d-sm-block">
+                                    <div class="user-name">@currentUser.FullName</div>
+                                    <div class="user-role">@currentUser.RoleName</div>
+                                </div>
+                                <i class="fa-solid fa-chevron-down text-muted ms-1" style="font-size:0.7rem;"></i>
+                            </div>
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2" style="border-radius:var(--radius-sm); min-width:200px;">
+                                <li>
+                                    <div class="px-3 py-2 border-bottom">
+                                        <div class="fw-bold small">@currentUser.FullName</div>
+                                        <div class="text-muted" style="font-size:0.78rem;">@currentUser.Email</div>
+                                    </div>
+                                </li>
+                                <li><a class="dropdown-item py-2" asp-controller="Account" asp-action="Profile"><i class="fa-solid fa-user me-2 text-primary"></i>My Profile</a></li>
+                                <li><a class="dropdown-item py-2" asp-controller="Home" asp-action="Index"><i class="fa-solid fa-globe me-2 text-success"></i>Public Portal</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form asp-controller="Account" asp-action="Logout" method="post">
+                                        <button type="submit" class="dropdown-item py-2 text-danger">
+                                            <i class="fa-solid fa-arrow-right-from-bracket me-2"></i>Sign Out
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    }
+                    else
+                    {
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-forest btn-sm">Sign In</a>
+                    }
+                </div>
+            </nav>
+
+            <!-- Alerts Banner -->
+            <div class="container-fluid px-4 pt-3">
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm d-flex align-items-center" role="alert">
+                        <i class="fa-solid fa-circle-check fs-5 me-2 text-success"></i>
+                        <div>@TempData["SuccessMessage"]</div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm d-flex align-items-center" role="alert">
+                        <i class="fa-solid fa-triangle-exclamation fs-5 me-2 text-danger"></i>
+                        <div>@TempData["ErrorMessage"]</div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+            </div>
+
+            <!-- Page Body -->
+            <main class="container-fluid px-4 py-3 flex-grow-1">
+                @RenderBody()
+            </main>
+
+            <!-- Footer -->
+            <footer class="bg-white border-top py-3 px-4 text-center text-muted small mt-auto no-print">
+                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center">
+                    <div>
+                        &copy; @DateTime.UtcNow.Year <strong>FarmShield</strong> – Digital Biosecurity Management System. All rights reserved.
+                    </div>
+                    <div class="mt-2 mt-sm-0">
+                        <span class="badge bg-light text-dark border me-2">College Academic Project</span>
+                        <span class="text-success"><i class="fa-solid fa-shield-halved"></i> WOAH & FAO Biosecurity Compliant</span>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js 4.4 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <!-- Custom JS -->
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

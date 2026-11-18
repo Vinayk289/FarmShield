@@ -1,0 +1,60 @@
+## .NET / ASP.NET Core
+*.user
+*.userosscache
+*.suo
+*.userprefs
+.vs/
+bin/
+obj/
+out/
+publish/
+*.nupkg
+*.snupkg
+*.log
+*.tlog
+
+## SQLite database (runtime-generated)
+*.db
+*.db-shm
+*.db-wal
+
+## DataProtection keys (runtime-generated, machine-specific)
+App_Data/
+
+## ASP.NET Core secrets
+appsettings.Development.json
+appsettings.Production.json
+secrets.json
+
+## Rider / JetBrains
+.idea/
+*.sln.iml
+
+## VS Code
+.vscode/
+
+## macOS
+.DS_Store
+
+## Windows thumbnails
+Thumbs.db
+ehthumbs.db
+
+## NuGet
+packages/
+!**/packages/repositories.config
+*.nuget.props
+*.nuget.targets
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## Publish profiles
+**/Properties/PublishProfiles/
+PublishProfiles/
+
+## Coverage
+coverage/
+*.coverage
+*.coveragexml
+TestResults/

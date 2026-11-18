@@ -1,0 +1,87 @@
+@model FarmShield.ViewModels.LoginViewModel
+@{
+    Layout = "_LandingLayout";
+    ViewData["Title"] = "Sign In to FarmShield";
+}
+
+<div class="container py-5 my-4">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-5">
+            <div class="card border-0 shadow-lg p-4 p-md-5" style="border-radius: var(--radius-lg);">
+                <div class="text-center mb-4">
+                    <div class="stat-icon green mx-auto mb-3" style="width: 50px; height: 50px;">
+                        <i class="fa-solid fa-shield-virus"></i>
+                    </div>
+                    <h3 class="fw-bold mb-1">Staff Access Portal</h3>
+                    <p class="text-muted small">Sign in to manage biosecurity protocols and livestock records</p>
+                </div>
+
+                <form asp-action="Login" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="ReturnUrl" />
+
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger small py-2 mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label"></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="fa-solid fa-envelope text-muted"></i></span>
+                            <input asp-for="Email" class="form-control" placeholder="name@farmshield.com" autofocus />
+                        </div>
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <label asp-for="Password" class="form-label"></label>
+                            <span class="text-muted small">Default: FarmShield@2025</span>
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="fa-solid fa-lock text-muted"></i></span>
+                            <input asp-for="Password" class="form-control" placeholder="••••••••" />
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input asp-for="RememberMe" class="form-check-input" />
+                        <label asp-for="RememberMe" class="form-check-label small text-secondary"></label>
+                    </div>
+
+                    <button type="submit" class="btn btn-forest w-100 py-2 fw-bold shadow-sm">
+                        <i class="fa-solid fa-arrow-right-to-bracket me-2"></i> Sign In to Portal
+                    </button>
+                </form>
+
+                <hr class="my-4">
+
+                <!-- One-click Demo evaluation accounts -->
+                <div>
+                    <div class="text-center mb-2">
+                        <span class="badge bg-light text-dark border small fw-semibold">Quick 1-Click Academic Demo Logins</span>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <a asp-action="QuickLogin" asp-route-role="admin" class="btn btn-sm btn-outline-dark text-start">
+                            <i class="fa-solid fa-crown text-primary me-2"></i> <strong>Super Admin</strong> (Dr. Alexander Wright)
+                        </a>
+                        <a asp-action="QuickLogin" asp-route-role="owner" class="btn btn-sm btn-outline-success text-start">
+                            <i class="fa-solid fa-user-tie text-success me-2"></i> <strong>Farm Owner</strong> (Marcus Sterling)
+                        </a>
+                        <a asp-action="QuickLogin" asp-route-role="manager" class="btn btn-sm btn-outline-warning text-start">
+                            <i class="fa-solid fa-clipboard-user text-warning me-2"></i> <strong>Farm Manager</strong> (Sarah Jenkins)
+                        </a>
+                        <a asp-action="QuickLogin" asp-route-role="vet" class="btn btn-sm btn-outline-info text-start">
+                            <i class="fa-solid fa-user-doctor text-info me-2"></i> <strong>Veterinary Officer</strong> (Dr. Elena Rostova)
+                        </a>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <span class="text-muted small">Need to onboard a new agricultural facility?</span>
+                    <a asp-action="Register" class="text-success small fw-bold ms-1">Register Farm</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

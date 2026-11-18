@@ -1,0 +1,110 @@
+@model FarmShield.ViewModels.PoultryBatchCreateViewModel
+@{
+    ViewData["Title"] = "Place Poultry Batch";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold mb-1"><i class="fa-solid fa-feather-pointed text-success me-2"></i>Place New Poultry Batch</h3>
+                <p class="text-muted small m-0">Register a new flock placement, housing type, and initial bird count.</p>
+            </div>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                <i class="fa-solid fa-arrow-left me-1"></i> Back to Batches
+            </a>
+        </div>
+
+        <div class="card border-0 shadow-sm p-4 p-md-5" style="border-radius: var(--radius-md);">
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small mb-4"></div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="FarmId" class="form-label"></label>
+                        <select asp-for="FarmId" class="form-select">
+                            @foreach (var farm in Model.AvailableFarms)
+                            {
+                                <option value="@farm.FarmId">@farm.Name</option>
+                            }
+                        </select>
+                        <span asp-validation-for="FarmId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="BatchCode" class="form-label"></label>
+                        <input asp-for="BatchCode" class="form-control fw-bold" placeholder="PB-2025-BR01" />
+                        <span asp-validation-for="BatchCode" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="BatchName" class="form-label"></label>
+                    <input asp-for="BatchName" class="form-control" placeholder="Spring Broiler Batch Cobb-500 #1" />
+                    <span asp-validation-for="BatchName" class="text-danger small"></span>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label asp-for="PoultryType" class="form-label"></label>
+                        <select asp-for="PoultryType" class="form-select">
+                            <option value="1">Broiler</option>
+                            <option value="2">Layer</option>
+                            <option value="3">Chicks / Pullets</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Breed" class="form-label"></label>
+                        <input asp-for="Breed" class="form-control" placeholder="Cobb 500 / Ross 308" />
+                        <span asp-validation-for="Breed" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="HatchDate" class="form-label"></label>
+                        <input asp-for="HatchDate" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label asp-for="InitialBirdCount" class="form-label"></label>
+                        <input asp-for="InitialBirdCount" class="form-control" />
+                        <span asp-validation-for="InitialBirdCount" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="HouseNumber" class="form-label"></label>
+                        <input asp-for="HouseNumber" class="form-control" placeholder="Broiler Shed #1" />
+                        <span asp-validation-for="HouseNumber" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="TargetFcr" class="form-label"></label>
+                        <input asp-for="TargetFcr" class="form-control" step="0.01" />
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="HousingType" class="form-label"></label>
+                    <select asp-for="HousingType" class="form-select">
+                        <option value="Environment Controlled Tunnel House">Environment Controlled Tunnel House</option>
+                        <option value="Deep Litter System" selected>Deep Litter System</option>
+                        <option value="Enriched Aviary / Colony System">Enriched Aviary / Colony System</option>
+                        <option value="Pasture Raised / Free Range Biosecure">Pasture Raised / Free Range Biosecure</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Remarks" class="form-label"></label>
+                    <textarea asp-for="Remarks" class="form-control" rows="2" placeholder="Hatchery source, maternal antibodies profile..."></textarea>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-forest px-4">
+                        <i class="fa-solid fa-check me-1"></i> Place Batch
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+

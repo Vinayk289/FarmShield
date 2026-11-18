@@ -1,0 +1,185 @@
+@model FarmShield.ViewModels.PigListViewModel
+@{
+    ViewData["Title"] = "Swine Herd Management";
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">
+            <i class="fa-solid fa-piggy-bank text-success me-2"></i>Swine Herd Management & Traceability
+        </h2>
+        <p class="text-muted m-0">Individual identification, pedigree mapping, health categorization, and weight curves.</p>
+    </div>
+    <a asp-action="Create" asp-route-farmId="@Model.SelectedFarmId" class="btn btn-forest shadow-sm text-nowrap">
+        <i class="fa-solid fa-plus-circle me-1"></i> Register New Pig
+    </a>
+</div>
+
+<!-- Swine KPI Stats -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-2">
+        <div class="stat-card p-3 text-center">
+            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.68rem;">Total Active</small>
+            <div class="fs-3 fw-bold text-dark">@Model.TotalCount</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-2">
+        <div class="stat-card p-3 text-center">
+            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.68rem;">Healthy Herd</small>
+            <div class="fs-3 fw-bold text-success">@Model.TotalHealthy</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-2">
+        <div class="stat-card p-3 text-center">
+            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.68rem;">Sick / Quarantine</small>
+            <div class="fs-3 fw-bold @(Model.TotalSickOrQuarantined > 0 ? "text-danger" : "text-muted")">@Model.TotalSickOrQuarantined</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-2">
+        <div class="stat-card p-3 text-center">
+            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.68rem;">Breeding Sows</small>
+            <div class="fs-3 fw-bold text-primary">@Model.TotalSows</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-2">
+        <div class="stat-card p-3 text-center">
+            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.68rem;">Service Boars</small>
+            <div class="fs-3 fw-bold text-info">@Model.TotalBoars</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-2">
+        <div class="stat-card p-3 text-center">
+            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.68rem;">Growers / Piglets</small>
+            <div class="fs-3 fw-bold text-warning">@(Model.TotalGrowers + Model.TotalPiglets)</div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card border-0 shadow-sm p-3 mb-4" style="border-radius: var(--radius-md);">
+    <form method="get" asp-action="Index" class="row g-2 align-items-center">
+        <div class="col-md-3">
+            <select name="farmId" class="form-select">
+                <option value="">All Pig Facilities</option>
+                @foreach (var farm in Model.AvailableFarms)
+                {
+                    <option value="@farm.FarmId" selected="@(Model.SelectedFarmId == farm.FarmId)">@farm.Name</option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <div class="input-group">
+                <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-tag text-muted"></i></span>
+                <input type="text" name="searchTag" value="@Model.SearchTag" class="form-control border-start-0" placeholder="Search Tag #, Breed, Pen..." />
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <select name="categoryFilter" class="form-select">
+                <option value="">All Categories</option>
+                <option value="1" selected="@(Model.CategoryFilter == FarmShield.Models.Enums.PigCategory.Piglet)">Piglet</option>
+                <option value="2" selected="@(Model.CategoryFilter == FarmShield.Models.Enums.PigCategory.Grower)">Grower</option>
+                <option value="3" selected="@(Model.CategoryFilter == FarmShield.Models.Enums.PigCategory.Sow)">Sow</option>
+                <option value="4" selected="@(Model.CategoryFilter == FarmShield.Models.Enums.PigCategory.Boar)">Boar</option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <select name="healthFilter" class="form-select">
+                <option value="">All Health States</option>
+                <option value="1" selected="@(Model.HealthFilter == FarmShield.Models.Enums.AnimalHealthStatus.Healthy)">Healthy</option>
+                <option value="2" selected="@(Model.HealthFilter == FarmShield.Models.Enums.AnimalHealthStatus.Sick)">Sick</option>
+                <option value="3" selected="@(Model.HealthFilter == FarmShield.Models.Enums.AnimalHealthStatus.Quarantine)">Quarantine</option>
+                <option value="4" selected="@(Model.HealthFilter == FarmShield.Models.Enums.AnimalHealthStatus.UnderTreatment)">Under Treatment</option>
+            </select>
+        </div>
+
+        <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-forest flex-grow-1">Filter</button>
+            <a asp-action="Index" class="btn btn-outline-secondary"><i class="fa-solid fa-rotate-left"></i></a>
+        </div>
+    </form>
+</div>
+
+<!-- Pigs Table -->
+<div class="card border-0 shadow-sm overflow-hidden" style="border-radius: var(--radius-md);">
+    <div class="table-responsive">
+        <table class="table custom-table mb-0">
+            <thead>
+                <tr>
+                    <th>Tag Number</th>
+                    <th>Facility</th>
+                    <th>Breed</th>
+                    <th>Category</th>
+                    <th>Gender</th>
+                    <th>Weight</th>
+                    <th>Health Condition</th>
+                    <th>Housing Unit</th>
+                    <th>Status</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Pigs.Any())
+                {
+                    <tr>
+                        <td colspan="10" class="text-center py-5 text-muted">
+                            <i class="fa-solid fa-tag fs-2 mb-2 text-secondary"></i>
+                            <div>No swine livestock match the selected criteria.</div>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var pig in Model.Pigs)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@pig.AnimalId" class="fw-bold text-success text-decoration-none">
+                                    @pig.TagNumber
+                                </a>
+                            </td>
+                            <td><small class="text-muted">@pig.Farm?.Name</small></td>
+                            <td>@pig.Breed</td>
+                            <td><span class="badge bg-light text-dark border">@pig.Category</span></td>
+                            <td>
+                                @if (pig.Gender == FarmShield.Models.Enums.AnimalGender.Male)
+                                {
+                                    <span class="text-primary"><i class="fa-solid fa-mars me-1"></i>M</span>
+                                }
+                                else
+                                {
+                                    <span class="text-danger"><i class="fa-solid fa-venus me-1"></i>F</span>
+                                }
+                            </td>
+                            <td class="fw-bold">@pig.CurrentWeightKg kg</td>
+                            <td>
+                                <span class="badge @(pig.HealthCondition == FarmShield.Models.Enums.AnimalHealthStatus.Healthy ? "bg-success" : (pig.HealthCondition == FarmShield.Models.Enums.AnimalHealthStatus.Quarantine ? "bg-warning text-dark" : "bg-danger"))">
+                                    @pig.HealthCondition
+                                </span>
+                            </td>
+                            <td><small>@pig.PenBarnNumber</small></td>
+                            <td>
+                                <span class="badge @(pig.Status == FarmShield.Models.Enums.AnimalStatus.Active ? "bg-success bg-opacity-25 text-success" : "bg-secondary")">
+                                    @pig.Status
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <div class="d-flex justify-content-end gap-1">
+                                    <a asp-action="Details" asp-route-id="@pig.AnimalId" class="btn btn-sm btn-outline-secondary" title="View Profile">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </a>
+                                    <a asp-action="Edit" asp-route-id="@pig.AnimalId" class="btn btn-sm btn-light border" title="Edit Record">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+

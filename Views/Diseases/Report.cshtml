@@ -1,0 +1,137 @@
+@model FarmShield.ViewModels.DiseaseReportCreateViewModel
+@{
+    ViewData["Title"] = "Report Suspected Disease";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold mb-1"><i class="fa-solid fa-triangle-exclamation text-danger me-2"></i>Report Suspected Disease / Morbidity</h3>
+                <p class="text-muted small m-0">Early outbreak reporting triggers immediate quarantine and veterinary notification.</p>
+            </div>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                <i class="fa-solid fa-arrow-left me-1"></i> Back to Cases
+            </a>
+        </div>
+
+        <div class="card border-0 shadow-sm p-4 p-md-5" style="border-radius: var(--radius-md);">
+            <form asp-action="Report" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small mb-4"></div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="FarmId" class="form-label">Agricultural Facility</label>
+                        <select asp-for="FarmId" class="form-select" onchange="this.form.submit()">
+                            @foreach (var farm in Model.AvailableFarms)
+                            {
+                                <option value="@farm.FarmId">@farm.Name (@farm.FarmType)</option>
+                            }
+                        </select>
+                        <span asp-validation-for="FarmId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="DetectionDate" class="form-label"></label>
+                        <input asp-for="DetectionDate" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="AnimalId" class="form-label"></label>
+                        <select asp-for="AnimalId" class="form-select">
+                            <option value="">General Herd / None</option>
+                            @foreach (var pig in Model.AvailableAnimals)
+                            {
+                                <option value="@pig.AnimalId">Pig @pig.TagNumber (@pig.Breed, @pig.PenBarnNumber)</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="PoultryBatchId" class="form-label"></label>
+                        <select asp-for="PoultryBatchId" class="form-select">
+                            <option value="">General Flock / None</option>
+                            @foreach (var batch in Model.AvailableBatches)
+                            {
+                                <option value="@batch.BatchId">Batch @batch.BatchCode (@batch.BatchName)</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="DiseaseName" class="form-label"></label>
+                        <input asp-for="DiseaseName" class="form-control" placeholder="e.g. Swine Respiratory Complex, Coccidiosis, Newcastle..." />
+                        <span asp-validation-for="DiseaseName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label asp-for="DiseaseCategory" class="form-label"></label>
+                        <select asp-for="DiseaseCategory" class="form-select">
+                            <option value="Viral" selected>Viral</option>
+                            <option value="Bacterial">Bacterial</option>
+                            <option value="Parasitic">Parasitic</option>
+                            <option value="Nutritional">Nutritional / Metabolic</option>
+                            <option value="Unknown">Unknown Etiology</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label asp-for="Severity" class="form-label"></label>
+                        <select asp-for="Severity" class="form-select">
+                            <option value="1">Low</option>
+                            <option value="2" selected>Medium</option>
+                            <option value="3">High</option>
+                            <option value="4">Critical Outbreak</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="AffectedCount" class="form-label"></label>
+                        <input asp-for="AffectedCount" class="form-control" />
+                        <span asp-validation-for="AffectedCount" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="MortalityCount" class="form-label"></label>
+                        <input asp-for="MortalityCount" class="form-control text-danger fw-bold" />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Symptoms" class="form-label"></label>
+                    <textarea asp-for="Symptoms" class="form-control" rows="3" placeholder="Observable signs: fever, cough, cyanosis of ears, drop in water intake, diarrhea, sudden mortality..."></textarea>
+                    <span asp-validation-for="Symptoms" class="text-danger small"></span>
+                </div>
+
+                <div class="p-3 mb-3 rounded bg-light border">
+                    <div class="form-check">
+                        <input asp-for="IsolationImplemented" class="form-check-input" />
+                        <label asp-for="IsolationImplemented" class="form-check-label fw-bold text-dark">
+                            Physical Bio-Isolation / Quarantine Pen Immediately Instituted
+                        </label>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="TreatmentGiven" class="form-label"></label>
+                    <input asp-for="TreatmentGiven" class="form-control" placeholder="Electrolytes, anti-inflammatory, preliminary antibiotic dosage..." />
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-danger px-4">
+                        <i class="fa-solid fa-triangle-exclamation me-1"></i> Submit Case & Broadcast Alert
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+

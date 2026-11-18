@@ -1,0 +1,490 @@
+@{
+    Layout = "_LandingLayout";
+    ViewData["Title"] = "Digital Biosecurity & Farm Management Portal";
+}
+
+<!-- Hero Section -->
+<section class="hero-section" id="overview">
+    <div class="container py-5">
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <div class="hero-badge">
+                    <i class="fa-solid fa-shield-virus"></i> Enterprise Agricultural Bio-Defense
+                </div>
+                <h1 class="display-4 fw-extrabold text-white mb-3" style="line-height: 1.15;">
+                    Smarter Farming.<br />
+                    Safer Livestock.<br />
+                    <span class="text-success-emphasis" style="color: #6ee7b7 !important;">Stronger Biosecurity.</span>
+                </h1>
+                <p class="lead text-white-50 mb-4" style="font-size: 1.18rem; max-width: 600px;">
+                    FarmShield is an enterprise-grade digital farm management and biosecurity platform engineered specifically for modern pig and poultry operations. Defend your herds against catastrophic pathogens with automated compliance audits, gate controls, and real-time disease surveillance.
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    <a asp-controller="Account" asp-action="Register" class="btn btn-success btn-lg px-4 py-3 fw-bold shadow-lg" style="background-color: #208b59; border-color: #208b59;">
+                        <i class="fa-solid fa-arrow-right-to-bracket me-2"></i> Get Started Free
+                    </a>
+                    <a href="#biosecurity" class="btn btn-outline-light btn-lg px-4 py-3 fw-bold">
+                        <i class="fa-solid fa-circle-play me-2"></i> Explore Biosecurity Pillars
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-5 d-none d-lg-block">
+                <div class="card border-0 shadow-lg text-dark p-4" style="border-radius: var(--radius-lg); background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);">
+                    <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-circle-check text-success fs-4"></i>
+                            <h6 class="m-0 fw-bold">Live Biosecurity Shield Status</h6>
+                        </div>
+                        <span class="badge bg-success">Active Surveillance</span>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-6">
+                            <div class="p-3 bg-light rounded text-center">
+                                <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Average Compliance</small>
+                                <div class="fs-3 fw-bold text-success">@ViewBag.AverageCompliance%</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-light rounded text-center">
+                                <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Bio-Audits Logged</small>
+                                <div class="fs-3 fw-bold text-dark">@ViewBag.TotalInspections</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-3 rounded border border-success border-opacity-25 bg-success bg-opacity-10 mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-virus-slash text-success"></i>
+                            <div class="small fw-semibold text-dark">Zero Pathogen Contamination Flagged in Past 48 Hours</div>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <small class="text-muted">Instant access demo accounts available for evaluation:</small>
+                        <div class="mt-2 d-flex justify-content-center gap-2 flex-wrap">
+                            <a asp-controller="Account" asp-action="QuickLogin" asp-route-role="admin" class="btn btn-sm btn-outline-dark">Admin</a>
+                            <a asp-controller="Account" asp-action="QuickLogin" asp-route-role="owner" class="btn btn-sm btn-outline-success">Owner</a>
+                            <a asp-controller="Account" asp-action="QuickLogin" asp-route-role="manager" class="btn btn-sm btn-outline-warning">Manager</a>
+                            <a asp-controller="Account" asp-action="QuickLogin" asp-route-role="vet" class="btn btn-sm btn-outline-info">Vet Officer</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Live Statistics Section (Data driven from DB) -->
+<section class="py-5 bg-light border-bottom" id="statistics">
+    <div class="container">
+        <div class="row g-4 text-center">
+            <div class="col-6 col-md-3">
+                <div class="p-3 bg-white rounded shadow-sm border">
+                    <div class="stat-icon green mx-auto mb-2"><i class="fa-solid fa-tractor"></i></div>
+                    <div class="display-6 fw-bold text-dark">@ViewBag.TotalFarms</div>
+                    <div class="text-muted fw-semibold small text-uppercase">Registered Facilities</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3 bg-white rounded shadow-sm border">
+                    <div class="stat-icon orange mx-auto mb-2"><i class="fa-solid fa-piggy-bank"></i></div>
+                    <div class="display-6 fw-bold text-dark">@ViewBag.TotalPigs</div>
+                    <div class="text-muted fw-semibold small text-uppercase">Pigs Under Monitoring</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3 bg-white rounded shadow-sm border">
+                    <div class="stat-icon blue mx-auto mb-2"><i class="fa-solid fa-feather"></i></div>
+                    <div class="display-6 fw-bold text-dark">@ViewBag.TotalBirds.ToString("N0")</div>
+                    <div class="text-muted fw-semibold small text-uppercase">Poultry Birds Monitored</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3 bg-white rounded shadow-sm border">
+                    <div class="stat-icon green mx-auto mb-2"><i class="fa-solid fa-clipboard-check"></i></div>
+                    <div class="display-6 fw-bold text-dark">@ViewBag.AverageCompliance%</div>
+                    <div class="text-muted fw-semibold small text-uppercase">Avg Biosecurity Score</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5" id="features">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <span class="badge bg-success bg-opacity-10 text-success fw-bold px-3 py-2 text-uppercase mb-2">Platform Architecture</span>
+            <h2 class="fw-bold">Engineered for Agricultural Defense</h2>
+            <p class="text-muted mx-auto" style="max-width: 650px;">
+                FarmShield combines day-to-day livestock husbandry tracking with veterinary-certified biosecurity inspection matrices to shield producers from preventable epidemiological disasters.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-box">
+                    <div class="feature-icon-wrapper">
+                        <i class="fa-solid fa-mobile-screen-button"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">Digital Audit Checklists</h5>
+                    <p class="text-muted mb-0">
+                        Conduct standardized 20-point digital inspections across perimeter fencing, disinfection bays, feed silos, and waste containment with automatic compliance percentage and risk scoring.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="feature-box">
+                    <div class="feature-icon-wrapper">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">Early Outbreak Warnings</h5>
+                    <p class="text-muted mb-0">
+                        Immediate veterinary escalation for unusual mortalities, respiratory rales, or systemic symptoms with quarantine enforcement, differential diagnosis, and corrective action workflows.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="feature-box">
+                    <div class="feature-icon-wrapper">
+                        <i class="fa-solid fa-syringe"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">Cold-Chain Immunization</h5>
+                    <p class="text-muted mb-0">
+                        Complete traceability for swine and poultry vaccine schedules with lot numbers, route tracking, dosage controls, and automated upcoming or overdue booster notifications.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Pig Farm Management Showcase -->
+<section class="py-5 bg-light border-top border-bottom" id="pigs">
+    <div class="container py-4">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <span class="badge bg-warning bg-opacity-25 text-dark fw-bold px-3 py-2 text-uppercase mb-2">Swine Precision Module</span>
+                <h2 class="fw-bold mb-3">Complete Individual Pig & Breeding Herd Management</h2>
+                <p class="text-muted">
+                    Maintain rigorous individual animal traceability for farrow-to-finish operations. Track breeding boars, sows, growers, and piglets with individual RFID/ear-tag tracking.
+                </p>
+                <div class="row g-3 mt-2">
+                    <div class="col-sm-6">
+                        <div class="d-flex gap-3">
+                            <i class="fa-solid fa-tag text-success fs-5 mt-1"></i>
+                            <div>
+                                <h6 class="fw-bold m-0">Unique Tag Identification</h6>
+                                <small class="text-muted">Lifecycle tracking from farrowing to market finish.</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="d-flex gap-3">
+                            <i class="fa-solid fa-weight-scale text-success fs-5 mt-1"></i>
+                            <div>
+                                <h6 class="fw-bold m-0">Weight & Feed Curves</h6>
+                                <small class="text-muted">Monitor daily gain curves and feed efficiency.</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="d-flex gap-3">
+                            <i class="fa-solid fa-dna text-success fs-5 mt-1"></i>
+                            <div>
+                                <h6 class="fw-bold m-0">Pedigree & Genetics</h6>
+                                <small class="text-muted">Sire and Dam lineage mapping for breed vigor.</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="d-flex gap-3">
+                            <i class="fa-solid fa-bed-pulse text-success fs-5 mt-1"></i>
+                            <div>
+                                <h6 class="fw-bold m-0">Quarantine Pen Logs</h6>
+                                <small class="text-muted">Strict bio-isolation for newly introduced or sick pigs.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <a asp-controller="Pigs" asp-action="Index" class="btn btn-forest">
+                        <i class="fa-solid fa-arrow-right me-1"></i> View Swine Directory
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-lg overflow-hidden" style="border-radius: var(--radius-lg);">
+                    <img src="https://images.unsplash.com/photo-1516467508483-a7212febe31a?auto=format&fit=crop&w=1200&q=80" class="img-fluid" alt="Biosecure Pig Facility" style="height: 380px; object-fit: cover;">
+                    <div class="card-body p-4 bg-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="fw-bold m-0">Specific Pathogen Free (SPF) Swine Standards</h6>
+                                <small class="text-muted">Biosecurity Level 3 Filtration & Clean Air Barns</small>
+                            </div>
+                            <span class="badge bg-success">BioSecure Grade A</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Poultry Farm Management Showcase -->
+<section class="py-5" id="poultry">
+    <div class="container py-4">
+        <div class="row align-items-center g-5 flex-lg-row-reverse">
+            <div class="col-lg-6">
+                <span class="badge bg-info bg-opacity-25 text-info fw-bold px-3 py-2 text-uppercase mb-2">Avian Precision Module</span>
+                <h2 class="fw-bold mb-3">Flock Batch Traceability for Broilers & Layers</h2>
+                <p class="text-muted">
+                    Manage large-scale commercial poultry batches with automated daily recording of water consumption, feed intake, mortality rates, and layer egg production curves.
+                </p>
+                <div class="row g-3 mt-2">
+                    <div class="col-sm-6">
+                        <div class="d-flex gap-3">
+                            <i class="fa-solid fa-egg text-warning fs-5 mt-1"></i>
+                            <div>
+                                <h6 class="fw-bold m-0">Layer Egg Yield Tracking</h6>
+                                <small class="text-muted">Daily egg collection, broken shell rates, and laying %.</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="d-flex gap-3">
+                            <i class="fa-solid fa-chart-area text-info fs-5 mt-1"></i>
+                            <div>
+                                <h6 class="fw-bold m-0">FCR Conversion Ratio</h6>
+                                <small class="text-muted">Automated Feed Conversion Ratio calculation against breed targets.</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="d-flex gap-3">
+                            <i class="fa-solid fa-house-chimney-medical text-primary fs-5 mt-1"></i>
+                            <div>
+                                <h6 class="fw-bold m-0">Housing Type Analytics</h6>
+                                <small class="text-muted">Tunnel-ventilated, deep litter, or aviary house benchmarking.</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="d-flex gap-3">
+                            <i class="fa-solid fa-skull-crossbones text-danger fs-5 mt-1"></i>
+                            <div>
+                                <h6 class="fw-bold m-0">Cumulative Mortality Alerts</h6>
+                                <small class="text-muted">Threshold alarms for spikes exceeding 0.5% in 24 hours.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <a asp-controller="Poultry" asp-action="Index" class="btn btn-forest">
+                        <i class="fa-solid fa-arrow-right me-1"></i> View Poultry Batches
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-lg overflow-hidden" style="border-radius: var(--radius-lg);">
+                    <img src="https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&w=1200&q=80" class="img-fluid" alt="Modern Poultry Complex" style="height: 380px; object-fit: cover;">
+                    <div class="card-body p-4 bg-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="fw-bold m-0">High-Density Broiler Tunnel Houses</h6>
+                                <small class="text-muted">Automated Misting, Water Acidification & Biosecurity Barrier</small>
+                            </div>
+                            <span class="badge bg-primary">Automated HVAC</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Biosecurity Features Section (6 Pillars) -->
+<section class="py-5 bg-light border-top border-bottom" id="biosecurity">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <span class="badge bg-success bg-opacity-10 text-success fw-bold px-3 py-2 text-uppercase mb-2">The Core Defense Framework</span>
+            <h2 class="fw-bold">6-Pillar Digital Biosecurity System</h2>
+            <p class="text-muted mx-auto" style="max-width: 700px;">
+                FarmShield operationalizes the six internationally recognized biosecurity pillars defined by WOAH (World Organisation for Animal Health) and FAO into executable digital workflows.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Pillar A -->
+            <div class="col-md-6 col-lg-4">
+                <div class="stat-card h-100">
+                    <div class="stat-icon green mb-3">
+                        <i class="fa-solid fa-id-card-clip"></i>
+                    </div>
+                    <h5 class="fw-bold">A. Visitor & Gate Security</h5>
+                    <p class="text-muted small">
+                        Mandatory visitor registration, 72-hour previous farm contact verification, PPE distribution, vehicle undercarriage tire spray, and gate pass approvals.
+                    </p>
+                    <a asp-controller="Biosecurity" asp-action="Visitors" class="btn btn-sm btn-outline-success">Manage Gate <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+
+            <!-- Pillar B -->
+            <div class="col-md-6 col-lg-4">
+                <div class="stat-card h-100">
+                    <div class="stat-icon blue mb-3">
+                        <i class="fa-solid fa-pump-soap"></i>
+                    </div>
+                    <h5 class="fw-bold">B. Cleaning & Disinfection</h5>
+                    <p class="text-muted small">
+                        Daily sanitation schedules, chemical brand & dilution monitoring (Virkon, Glutaraldehyde), terminal barn wash logs, and footbath solution refreshment.
+                    </p>
+                    <a asp-controller="Biosecurity" asp-action="Cleaning" class="btn btn-sm btn-outline-primary">Cleaning Logs <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+
+            <!-- Pillar C -->
+            <div class="col-md-6 col-lg-4">
+                <div class="stat-card h-100">
+                    <div class="stat-icon red mb-3">
+                        <i class="fa-solid fa-heart-pulse"></i>
+                    </div>
+                    <h5 class="fw-bold">C. Health & Quarantine</h5>
+                    <p class="text-muted small">
+                        Daily herd surveillance, early symptom detection, bio-quarantine pen isolation, and veterinary confirmation protocols to prevent horizontal pathogen spread.
+                    </p>
+                    <a asp-controller="Diseases" asp-action="Index" class="btn btn-sm btn-outline-danger">Surveillance <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+
+            <!-- Pillar D -->
+            <div class="col-md-6 col-lg-4">
+                <div class="stat-card h-100">
+                    <div class="stat-icon green mb-3">
+                        <i class="fa-solid fa-faucet-drip"></i>
+                    </div>
+                    <h5 class="fw-bold">D. Feed & Water Safety</h5>
+                    <p class="text-muted small">
+                        Testing bulk feed consignments for moisture and mycotoxin mold, automated waterline chlorination (2-4 ppm), pH adjustment, and bacterial testing.
+                    </p>
+                    <a asp-controller="Biosecurity" asp-action="FeedWater" class="btn btn-sm btn-outline-success">Feed & Water <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+
+            <!-- Pillar E -->
+            <div class="col-md-6 col-lg-4">
+                <div class="stat-card h-100">
+                    <div class="stat-icon orange mb-3">
+                        <i class="fa-solid fa-bug-slash"></i>
+                    </div>
+                    <h5 class="fw-bold">E. Pest & Vector Control</h5>
+                    <p class="text-muted small">
+                        Mapped exterior rodent bait stations, insect fogging schedules, fly larvae treatment in manure pits, and wild-bird exclusion screen inspections.
+                    </p>
+                    <a asp-controller="Biosecurity" asp-action="PestControl" class="btn btn-sm btn-outline-warning">IPM Records <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+
+            <!-- Pillar F -->
+            <div class="col-md-6 col-lg-4">
+                <div class="stat-card h-100">
+                    <div class="stat-icon red mb-3">
+                        <i class="fa-solid fa-dumpster-fire"></i>
+                    </div>
+                    <h5 class="fw-bold">F. Waste & Carcass Disposal</h5>
+                    <p class="text-muted small">
+                        Sanitary carcass containment within 12 hours via high-temperature incineration or thermophilic composting (65°C+), and slurry lagoon leachate monitoring.
+                    </p>
+                    <a asp-controller="Biosecurity" asp-action="WasteManagement" class="btn btn-sm btn-outline-danger">Waste Logs <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Benefits Section -->
+<section class="py-5" id="benefits">
+    <div class="container py-4">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-5">
+                <span class="badge bg-success bg-opacity-10 text-success fw-bold px-3 py-2 text-uppercase mb-2">Proven Impact</span>
+                <h2 class="fw-bold mb-3">Why Modern Farms Standardize on FarmShield</h2>
+                <p class="text-muted">
+                    Pathogens such as African Swine Fever (ASF), PRRS, and Highly Pathogenic Avian Influenza (HPAI) cause billions in economic damages. Digital biosecurity is the most cost-effective insurance for livestock producers.
+                </p>
+                <ul class="list-unstyled d-flex flex-column gap-3 mt-4">
+                    <li class="d-flex align-items-start gap-3">
+                        <i class="fa-solid fa-circle-check text-success fs-5 mt-1"></i>
+                        <div>
+                            <strong>99.4% Risk Reduction</strong>
+                            <div class="text-muted small">Eliminate entry vulnerabilities through digital visitor vetting and truck decontamination logs.</div>
+                        </div>
+                    </li>
+                    <li class="d-flex align-items-start gap-3">
+                        <i class="fa-solid fa-circle-check text-success fs-5 mt-1"></i>
+                        <div>
+                            <strong>Instant Regulatory Audit Readiness</strong>
+                            <div class="text-muted small">Generate export-ready biosecurity certificates and compliance history for state agricultural boards.</div>
+                        </div>
+                    </li>
+                    <li class="d-flex align-items-start gap-3">
+                        <i class="fa-solid fa-circle-check text-success fs-5 mt-1"></i>
+                        <div>
+                            <strong>Zero Lost Vaccination Records</strong>
+                            <div class="text-muted small">Eliminate forgotten booster dates with automated alerts and herd coverage tracking.</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-lg-7">
+                <div class="p-5 rounded-4 bg-forest text-white" style="background: linear-gradient(135deg, #176B45, #0F492E);">
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <div class="stat-icon bg-white text-success"><i class="fa-solid fa-graduation-cap"></i></div>
+                        <div>
+                            <h4 class="m-0 text-white fw-bold">Academic Project Demonstration</h4>
+                            <small class="text-white-50">College Final Year Software Architecture Capstone</small>
+                        </div>
+                    </div>
+                    <p class="text-white-50 mb-4">
+                        Built from the ground up using ASP.NET Core MVC, Entity Framework Core Code First, ASP.NET Core Identity, and Chart.js. Fully functional backend with complete database transactions, zero mock local storage, and 4 specialized user roles.
+                    </p>
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <div class="p-3 rounded bg-white bg-opacity-10">
+                                <div class="fw-bold mb-1"><i class="fa-solid fa-database text-warning me-1"></i> SQL Server / EF Core</div>
+                                <small class="text-white-50">Normalized schemas with cascade constraints and foreign keys.</small>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="p-3 rounded bg-white bg-opacity-10">
+                                <div class="fw-bold mb-1"><i class="fa-solid fa-user-shield text-info me-1"></i> Identity & 4 Roles</div>
+                                <small class="text-white-50">Super Admin, Farm Owner, Farm Manager, and Veterinary Officer.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to action -->
+<section class="py-5 bg-success text-white text-center" style="background: #176B45 !important;">
+    <div class="container py-4">
+        <h2 class="display-6 fw-bold mb-3">Ready to Protect Your Livestock with Digital Biosecurity?</h2>
+        <p class="lead mb-4 mx-auto" style="max-width: 600px; color: #d1ecdb;">
+            Launch the portal now or try the instant evaluation demo roles to inspect all features.
+        </p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a asp-controller="Account" asp-action="Register" class="btn btn-light btn-lg px-4 py-3 fw-bold text-success shadow">
+                <i class="fa-solid fa-user-plus me-2"></i> Register Your Farm
+            </a>
+            <a asp-controller="Account" asp-action="QuickLogin" asp-route-role="admin" class="btn btn-outline-light btn-lg px-4 py-3 fw-bold">
+                <i class="fa-solid fa-key me-2"></i> Launch SuperAdmin Demo
+            </a>
+        </div>
+    </div>
+</section>

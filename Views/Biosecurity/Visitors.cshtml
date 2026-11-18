@@ -1,0 +1,122 @@
+@model List<FarmShield.Models.Entities.Visitor>
+@{
+    ViewData["Title"] = "Visitor & Vehicle Gate Logs";
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">
+            <i class="fa-solid fa-id-card-clip text-success me-2"></i>Pillar A: Visitor & Vehicle Bio-Gate Logs
+        </h2>
+        <p class="text-muted m-0">Mandatory check-in, 72-hour previous farm screening, shower-in and tire wash verification.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="AddVisitor" asp-route-farmId="@ViewBag.SelectedFarmId" class="btn btn-forest shadow-sm text-nowrap">
+            <i class="fa-solid fa-plus-circle me-1"></i> Register New Visitor
+        </a>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+            <i class="fa-solid fa-arrow-left me-1"></i> Biosecurity Hub
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm p-4" style="border-radius: var(--radius-md);">
+    <div class="table-responsive">
+        <table class="table custom-table">
+            <thead>
+                <tr>
+                    <th>Visitor Name</th>
+                    <th>Facility</th>
+                    <th>Organization</th>
+                    <th>Purpose</th>
+                    <th>Vehicle Plate</th>
+                    <th>Entry Timestamp</th>
+                    <th>72h Other Farm?</th>
+                    <th>Decontamination</th>
+                    <th>Approval</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="10" class="text-center py-5 text-muted">
+                            <i class="fa-solid fa-id-card fs-2 mb-2 text-secondary"></i>
+                            <div>Zero visitor registrations logged at gate.</div>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var vis in Model)
+                    {
+                        <tr>
+                            <td class="fw-bold text-dark">
+                                @vis.VisitorName
+                                <div class="text-muted small" style="font-size: 0.75rem;">@vis.ContactNumber</div>
+                            </td>
+                            <td><small class="badge bg-light text-dark border">@vis.Farm?.Name</small></td>
+                            <td>@vis.Organization</td>
+                            <td><small>@vis.PurposeOfVisit</small></td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(vis.VehicleNumber))
+                                {
+                                    <span class="badge bg-secondary">@vis.VehicleNumber</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">Foot Entry</span>
+                                }
+                            </td>
+                            <td><small class="fw-bold">@vis.EntryTime.ToString("yyyy-MM-dd HH:mm")</small></td>
+                            <td>
+                                @if (vis.VisitedAnotherFarmRecently)
+                                {
+                                    <span class="badge bg-danger" title="@vis.LastFarmVisitedDetails">
+                                        <i class="fa-solid fa-triangle-exclamation me-1"></i> YES (Alert)
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">NO (Clean)</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="d-flex flex-column gap-1 small" style="font-size: 0.72rem;">
+                                    <span class="@(vis.DisinfectionConfirmed ? "text-success" : "text-muted")">
+                                        <i class="fa-solid @(vis.DisinfectionConfirmed ? "fa-check" : "fa-xmark") me-1"></i>Vehicle Wash
+                                    </span>
+                                    <span class="@(vis.ShowerTaken ? "text-success" : "text-muted")">
+                                        <i class="fa-solid @(vis.ShowerTaken ? "fa-check" : "fa-xmark") me-1"></i>Shower-In
+                                    </span>
+                                    <span class="@(vis.ProtectiveClothingIssued ? "text-success" : "text-muted")">
+                                        <i class="fa-solid @(vis.ProtectiveClothingIssued ? "fa-check" : "fa-xmark") me-1"></i>Farm PPE
+                                    </span>
+                                </div>
+                            </td>
+                            <td><span class="badge bg-success">@vis.ApprovalStatus</span></td>
+                            <td class="text-end">
+                                @if (!vis.ExitTime.HasValue)
+                                {
+                                    <form asp-action="LogVisitorExit" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="visitorId" value="@vis.VisitorId" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Sign Out from Farm">
+                                            <i class="fa-solid fa-arrow-right-from-bracket me-1"></i> Exit
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">Exited @vis.ExitTime.Value.ToString("HH:mm")</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+

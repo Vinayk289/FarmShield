@@ -1,0 +1,227 @@
+@model FarmShield.ViewModels.InspectionDetailsViewModel
+@{
+    ViewData["Title"] = $"Audit Certificate {Model.Inspection.InspectionCode}";
+    var ins = Model.Inspection;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4 no-print">
+    <div>
+        <h3 class="fw-bold m-0"><i class="fa-solid fa-file-pdf text-danger me-2"></i>Official Biosecurity Audit Certificate</h3>
+        <small class="text-muted">Code: @ins.InspectionCode | Conducted: @ins.InspectionDate.ToString("MMMM dd, yyyy")</small>
+    </div>
+    <div class="d-flex gap-2">
+        <button onclick="window.print()" class="btn btn-dark btn-sm shadow-sm">
+            <i class="fa-solid fa-print me-1"></i> Print / Export PDF
+        </button>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+            <i class="fa-solid fa-arrow-left me-1"></i> Back to Audits
+        </a>
+    </div>
+</div>
+
+<!-- Formal Printable Certificate Container -->
+<div class="card border-0 shadow-lg p-4 p-md-5 bg-white mb-5" style="border-radius: var(--radius-md);">
+    <!-- Certificate Header -->
+    <div class="border-bottom pb-4 mb-4">
+        <div class="row align-items-center">
+            <div class="col-8">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon green" style="width: 55px; height: 55px; font-size: 26px;">
+                        <i class="fa-solid fa-shield-virus"></i>
+                    </div>
+                    <div>
+                        <h3 class="fw-bold m-0 text-success">FARMSHIELD BIOSECURITY CERTIFICATION</h3>
+                        <div class="text-muted small text-uppercase fw-semibold" style="letter-spacing: 0.08em;">
+                            Digital Livestock Health, Containment & Bio-Exclusion Audit Sheet
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4 text-end">
+                <div class="fw-bold text-dark fs-5">@ins.InspectionCode</div>
+                <div class="text-muted small">Standard: WOAH / USDA APHIS Matrix</div>
+                @if (ins.CertifiedBiosecure)
+                {
+                    <span class="badge bg-success mt-1"><i class="fa-solid fa-award me-1"></i> Certified Biosecure</span>
+                }
+                else
+                {
+                    <span class="badge bg-danger mt-1">Conditional / Action Required</span>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Facility & Inspector Credentials Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-sm-6">
+            <div class="p-3 bg-light rounded">
+                <h6 class="fw-bold text-secondary text-uppercase mb-2" style="font-size: 0.75rem;">Audited Agricultural Facility</h6>
+                <div class="fs-5 fw-bold text-dark">@ins.Farm?.Name</div>
+                <div class="text-muted small"><i class="fa-solid fa-location-dot me-1"></i>@ins.Farm?.Address, @ins.Farm?.District, @ins.Farm?.State</div>
+                <div class="text-muted small mt-1">Facility Code: <strong>@ins.Farm?.FarmCode</strong> | Type: <strong>@ins.Farm?.FarmType</strong></div>
+            </div>
+        </div>
+
+        <div class="col-sm-6">
+            <div class="p-3 bg-light rounded">
+                <h6 class="fw-bold text-secondary text-uppercase mb-2" style="font-size: 0.75rem;">Inspecting Veterinary Authority</h6>
+                <div class="fs-5 fw-bold text-dark">@ins.InspectorName</div>
+                <div class="text-muted small"><i class="fa-solid fa-user-doctor me-1"></i>@ins.InspectorDesignation</div>
+                <div class="text-muted small mt-1">Inspection Timestamp: <strong>@ins.InspectionDate.ToString("yyyy-MM-dd HH:mm UTC")</strong></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Score & Risk Evaluation Bar -->
+    <div class="p-4 mb-4 rounded-3 border text-center" style="background: linear-gradient(135deg, #F8FAF8, #EFF8F2);">
+        <div class="row align-items-center">
+            <div class="col-md-4 border-end">
+                <small class="text-muted text-uppercase fw-bold" style="font-size: 0.75rem;">Calculated Compliance Score</small>
+                <div class="display-4 fw-bold @(ins.CompliancePercentage >= 85 ? "text-success" : (ins.CompliancePercentage >= 70 ? "text-warning" : "text-danger"))">
+                    @ins.CompliancePercentage%
+                </div>
+                <small class="text-muted">Formula: (Compliant / Applicable) × 100</small>
+            </div>
+
+            <div class="col-md-4 border-end">
+                <small class="text-muted text-uppercase fw-bold" style="font-size: 0.75rem;">Epidemiological Risk Level</small>
+                <div class="fs-2 fw-bold @(ins.RiskLevel == FarmShield.Models.Enums.RiskLevel.Low ? "text-success" : (ins.RiskLevel == FarmShield.Models.Enums.RiskLevel.Medium ? "text-warning" : "text-danger"))">
+                    @ins.RiskLevel Risk
+                </div>
+                <small class="text-muted">
+                    @(ins.RiskLevel == FarmShield.Models.Enums.RiskLevel.Low ? "Standard barrier protocols intact" : "Vulnerabilities detected")
+                </small>
+            </div>
+
+            <div class="col-md-4">
+                <small class="text-muted text-uppercase fw-bold" style="font-size: 0.75rem;">Itemized Evaluation</small>
+                <div class="d-flex justify-content-center gap-3 mt-2">
+                    <div>
+                        <span class="badge bg-success fs-6">@ins.CompliantItems</span>
+                        <div class="small text-muted">Compliant</div>
+                    </div>
+                    <div>
+                        <span class="badge bg-danger fs-6">@ins.NonCompliantItems</span>
+                        <div class="small text-muted">Violations</div>
+                    </div>
+                    <div>
+                        <span class="badge bg-secondary fs-6">@ins.NotApplicableItems</span>
+                        <div class="small text-muted">N/A</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Itemized Checklist Responses -->
+    <h5 class="fw-bold mb-3 border-bottom pb-2 text-dark">
+        <i class="fa-solid fa-list-check text-success me-2"></i>Itemized Inspection Checklist Results (20 Standards)
+    </h5>
+
+    <div class="table-responsive mb-4">
+        <table class="table table-bordered table-sm align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th style="width: 5%;">#</th>
+                    <th style="width: 25%;">Checklist Item & Domain</th>
+                    <th style="width: 35%;">Standard Specification</th>
+                    <th style="width: 15%;">Evaluation</th>
+                    <th style="width: 20%;">Observations / Corrective Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{ int rowNo = 1; }
+                @foreach (var resp in Model.Responses)
+                {
+                    <tr class="@(resp.Status == FarmShield.Models.Enums.ComplianceStatus.NonCompliant ? "table-danger bg-opacity-25" : "")">
+                        <td class="text-center fw-bold">@rowNo</td>
+                        <td>
+                            <strong class="text-dark">@resp.ChecklistItem?.ItemTitle</strong>
+                            <div class="text-muted" style="font-size: 0.75rem;">@resp.ChecklistItem?.Category</div>
+                        </td>
+                        <td>
+                            <small class="text-secondary">@resp.ChecklistItem?.Description</small>
+                            @if (!string.IsNullOrEmpty(resp.ChecklistItem?.StandardReference))
+                            {
+                                <div class="text-success" style="font-size: 0.7rem;">@resp.ChecklistItem.StandardReference</div>
+                            }
+                        </td>
+                        <td>
+                            @if (resp.Status == FarmShield.Models.Enums.ComplianceStatus.Compliant)
+                            {
+                                <span class="badge bg-success"><i class="fa-solid fa-check me-1"></i> Compliant</span>
+                            }
+                            else if (resp.Status == FarmShield.Models.Enums.ComplianceStatus.NonCompliant)
+                            {
+                                <span class="badge bg-danger"><i class="fa-solid fa-xmark me-1"></i> Violation</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Not Applicable</span>
+                            }
+                        </td>
+                        <td>
+                            <small class="text-dark">@resp.Remarks</small>
+                            @if (!string.IsNullOrEmpty(resp.CorrectiveAction))
+                            {
+                                <div class="text-danger fw-semibold mt-1" style="font-size: 0.75rem;">
+                                    <i class="fa-solid fa-triangle-exclamation me-1"></i>Action: @resp.CorrectiveAction
+                                </div>
+                            }
+                        </td>
+                    </tr>
+                    rowNo++;
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Identified Violations & Recommendations -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="p-3 rounded border border-danger border-opacity-25 bg-danger bg-opacity-10 h-100">
+                <h6 class="fw-bold text-danger mb-2">
+                    <i class="fa-solid fa-triangle-exclamation me-1"></i>Identified Deviations & Breaches
+                </h6>
+                <p class="small text-dark mb-0">
+                    @(string.IsNullOrEmpty(ins.ViolationsIdentified) ? "No critical biosecurity breaches detected during this inspection." : ins.ViolationsIdentified)
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="p-3 rounded border border-success border-opacity-25 bg-success bg-opacity-10 h-100">
+                <h6 class="fw-bold text-success mb-2">
+                    <i class="fa-solid fa-lightbulb me-1"></i>Veterinary Auditor Recommendations
+                </h6>
+                <p class="small text-dark mb-0">
+                    @(string.IsNullOrEmpty(ins.Recommendations) ? "Continue daily execution of standard operational procedures and footbath replenishment." : ins.Recommendations)
+                </p>
+            </div>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(ins.CorrectiveActionRequired))
+    {
+        <div class="p-3 rounded bg-warning bg-opacity-10 border border-warning border-opacity-25 mb-4">
+            <h6 class="fw-bold text-dark mb-1"><i class="fa-solid fa-gavel text-warning me-1"></i>Mandatory Corrective Action Orders</h6>
+            <div class="small text-dark">@ins.CorrectiveActionRequired</div>
+        </div>
+    }
+
+    <!-- Official Sign-off Signatures -->
+    <div class="row pt-4 border-top mt-4 text-center">
+        <div class="col-6">
+            <div class="mb-4" style="height: 40px; border-bottom: 1px dashed #999; width: 60%; margin: 0 auto;"></div>
+            <div class="fw-bold text-dark">@ins.InspectorName</div>
+            <div class="text-muted small">Lead Veterinary Auditor Signature</div>
+        </div>
+        <div class="col-6">
+            <div class="mb-4" style="height: 40px; border-bottom: 1px dashed #999; width: 60%; margin: 0 auto;"></div>
+            <div class="fw-bold text-dark">@ins.Farm?.OwnerName</div>
+            <div class="text-muted small">Farm Managing Director Sign-off</div>
+        </div>
+    </div>
+</div>
+

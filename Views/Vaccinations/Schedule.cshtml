@@ -1,0 +1,136 @@
+@model FarmShield.ViewModels.VaccinationCreateViewModel
+@{
+    ViewData["Title"] = "Record Vaccination";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold mb-1"><i class="fa-solid fa-syringe text-info me-2"></i>Administer or Schedule Vaccination</h3>
+                <p class="text-muted small m-0">Log biological vaccine details, route, cold-chain batch lot, and booster schedules.</p>
+            </div>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                <i class="fa-solid fa-arrow-left me-1"></i> Back to Schedule
+            </a>
+        </div>
+
+        <div class="card border-0 shadow-sm p-4 p-md-5" style="border-radius: var(--radius-md);">
+            <form asp-action="Schedule" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small mb-4"></div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="FarmId" class="form-label">Facility</label>
+                        <select asp-for="FarmId" class="form-select" onchange="this.form.submit()">
+                            @foreach (var farm in Model.AvailableFarms)
+                            {
+                                <option value="@farm.FarmId">@farm.Name (@farm.FarmType)</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Status" class="form-label"></label>
+                        <select asp-for="Status" class="form-select">
+                            <option value="2" selected>Completed (Administered Now)</option>
+                            <option value="1">Scheduled (Upcoming Appointment)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="AnimalId" class="form-label">Pig Tag (if Swine Dose)</label>
+                        <select asp-for="AnimalId" class="form-select">
+                            <option value="">General Herd / Mass Administration</option>
+                            @foreach (var pig in Model.AvailableAnimals)
+                            {
+                                <option value="@pig.AnimalId">Pig @pig.TagNumber (@pig.Breed)</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="PoultryBatchId" class="form-label">Poultry Batch (if Avian Dose)</label>
+                        <select asp-for="PoultryBatchId" class="form-select">
+                            <option value="">General Flock / None</option>
+                            @foreach (var batch in Model.AvailableBatches)
+                            {
+                                <option value="@batch.BatchId">Flock @batch.BatchCode (@batch.BatchName)</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="VaccineName" class="form-label"></label>
+                        <input asp-for="VaccineName" class="form-control" placeholder="e.g. Porcilis PRRS, Nobilis ND Clone 30" />
+                        <span asp-validation-for="VaccineName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="DiseaseTargeted" class="form-label"></label>
+                        <input asp-for="DiseaseTargeted" class="form-control" placeholder="e.g. PRRS, Swine Erysipelas, Newcastle, IBD" />
+                        <span asp-validation-for="DiseaseTargeted" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label asp-for="BatchLotNumber" class="form-label"></label>
+                        <input asp-for="BatchLotNumber" class="form-control fw-bold" placeholder="VAC-2025-09" />
+                        <span asp-validation-for="BatchLotNumber" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="VaccinationDate" class="form-label"></label>
+                        <input asp-for="VaccinationDate" class="form-control" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="NextDueDate" class="form-label"></label>
+                        <input asp-for="NextDueDate" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label asp-for="DoseAdministered" class="form-label"></label>
+                        <input asp-for="DoseAdministered" class="form-control" placeholder="2.0 ml / 1 dose per bird" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="Route" class="form-label"></label>
+                        <select asp-for="Route" class="form-select">
+                            <option value="Intramuscular" selected>Intramuscular (IM)</option>
+                            <option value="Subcutaneous">Subcutaneous (SC)</option>
+                            <option value="Drinking Water">Drinking Water (Flock)</option>
+                            <option value="Aerosol Spray">Coarse Aerosol Spray</option>
+                            <option value="Eye Drop">Ocular / Eye Drop</option>
+                            <option value="In Ovo">In Ovo (Hatchery)</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="AdministeredBy" class="form-label"></label>
+                        <input asp-for="AdministeredBy" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Remarks" class="form-label"></label>
+                    <textarea asp-for="Remarks" class="form-control" rows="2" placeholder="Cold-chain temperature verification (2°C-8°C), animal response..."></textarea>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-forest px-4">Save Vaccination Record</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,378 @@
+@model FarmShield.ViewModels.DashboardViewModel
+@{
+    ViewData["Title"] = "Executive Biosecurity Dashboard";
+}
+
+<!-- Dashboard Header & Farm Filter -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">
+            <i class="fa-solid fa-chart-line text-success me-2"></i>Executive Biosecurity Dashboard
+        </h2>
+        <p class="text-muted m-0">
+            Real-time epidemiological metrics, biosecurity compliance, and herd surveillance across facilities.
+        </p>
+    </div>
+
+    <!-- Farm Filter Dropdown -->
+    <div class="d-flex align-items-center gap-2">
+        <form method="get" asp-action="Index" class="d-flex align-items-center gap-2">
+            <label class="form-label mb-0 text-muted small fw-semibold text-nowrap"><i class="fa-solid fa-filter me-1"></i>Farm View:</label>
+            <select name="farmId" class="form-select form-select-sm shadow-sm" onchange="this.form.submit()" style="min-width: 220px;">
+                <option value="">All Registered Facilities</option>
+                @foreach (var farm in Model.AvailableFarms)
+                {
+                    <option value="@farm.FarmId" selected="@(Model.SelectedFarmId == farm.FarmId)">
+                        @farm.Name (@farm.FarmType)
+                    </option>
+                }
+            </select>
+        </form>
+
+        <a asp-controller="Inspections" asp-action="Create" class="btn btn-forest btn-sm text-nowrap shadow-sm">
+            <i class="fa-solid fa-plus-circle me-1"></i> New Audit
+        </a>
+    </div>
+</div>
+
+@if (Model.SelectedFarmId.HasValue && !string.IsNullOrEmpty(Model.SelectedFarmName))
+{
+    <div class="alert alert-info border-0 shadow-sm d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <i class="fa-solid fa-building-circle-check fs-5 me-2"></i>
+            Filtered to facility: <strong>@Model.SelectedFarmName</strong>
+        </div>
+        <a asp-action="Index" class="btn btn-sm btn-outline-info">Clear Filter</a>
+    </div>
+}
+
+<!-- Critical Disease Alert Banner (If Any Critical Alert Active) -->
+@if (Model.CriticalAlerts.Any())
+{
+    <div class="alert alert-danger border-0 shadow-sm mb-4">
+        <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-3">
+                <div class="stat-icon red" style="width: 44px; height: 44px; font-size: 20px;">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold mb-1 text-danger">Active Epidemiological Surveillance Alert (@Model.CriticalAlerts.Count Cases)</h6>
+                    <small class="text-dark">Potential pathogen exposure or unusual morbidity under active quarantine or investigation.</small>
+                </div>
+            </div>
+            <a asp-controller="Diseases" asp-action="Index" class="btn btn-danger btn-sm">Inspect Cases</a>
+        </div>
+    </div>
+}
+
+<!-- KPI Cards Row -->
+<div class="row g-3 mb-4">
+    <!-- Card 1: Total Registered Farms -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-card-header">
+                <span class="stat-label">Registered Facilities</span>
+                <div class="stat-icon green"><i class="fa-solid fa-tractor"></i></div>
+            </div>
+            <div class="stat-value">@Model.TotalFarms</div>
+            <div class="d-flex justify-content-between align-items-center text-muted small">
+                <span>Pig: @Model.PigFarms | Plt: @Model.PoultryFarms</span>
+                <span class="stat-delta bg-success bg-opacity-10 text-success fw-bold">Active</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 2: Total Animals & Birds -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-card-header">
+                <span class="stat-label">Animals & Birds</span>
+                <div class="stat-icon blue"><i class="fa-solid fa-paw"></i></div>
+            </div>
+            <div class="stat-value">@Model.TotalAnimals.ToString("N0")</div>
+            <div class="d-flex justify-content-between align-items-center text-muted small">
+                <span>@Model.TotalPigs Pigs | @Model.TotalBirds.ToString("N0") Birds</span>
+                <span class="stat-delta bg-info bg-opacity-10 text-info fw-bold">Monitored</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 3: Biosecurity Compliance Average -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-card-header">
+                <span class="stat-label">Biosecurity Compliance</span>
+                <div class="stat-icon @(Model.AverageCompliancePercentage >= 85 ? "green" : (Model.AverageCompliancePercentage >= 70 ? "orange" : "red"))">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+            </div>
+            <div class="stat-value">@Model.AverageCompliancePercentage%</div>
+            <div class="compliance-meter mb-2">
+                <div class="compliance-meter-bar @(Model.AverageCompliancePercentage >= 85 ? "bg-success" : (Model.AverageCompliancePercentage >= 70 ? "bg-warning" : "bg-danger"))" style="width: @Model.AverageCompliancePercentage%;"></div>
+            </div>
+            <div class="d-flex justify-content-between text-muted small">
+                <span>Total Audits: @Model.TotalInspections</span>
+                <span class="fw-bold @(Model.AverageCompliancePercentage >= 85 ? "text-success" : "text-warning")">
+                    @(Model.AverageCompliancePercentage >= 85 ? "Grade A" : "Grade B")
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 4: Disease Surveillance Alerts -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-card-header">
+                <span class="stat-label">Active Disease Alerts</span>
+                <div class="stat-icon @(Model.ActiveDiseaseAlerts > 0 ? "red" : "green")">
+                    <i class="fa-solid fa-virus-covid"></i>
+                </div>
+            </div>
+            <div class="stat-value @(Model.ActiveDiseaseAlerts > 0 ? "text-danger" : "text-success")">
+                @Model.ActiveDiseaseAlerts
+            </div>
+            <div class="d-flex justify-content-between align-items-center text-muted small">
+                <span>Pending Vet Verification</span>
+                <span class="stat-delta @(Model.ActiveDiseaseAlerts > 0 ? "bg-danger bg-opacity-10 text-danger" : "bg-success bg-opacity-10 text-success")">
+                    @(Model.ActiveDiseaseAlerts > 0 ? "Under Review" : "Secure")
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart Visualizations Grid -->
+<div class="row g-4 mb-4">
+    <!-- Chart 1: Biosecurity Compliance Trends (Line) -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm p-4 h-100" style="border-radius: var(--radius-md);">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h6 class="fw-bold m-0"><i class="fa-solid fa-chart-line text-success me-2"></i>Biosecurity Compliance Trends (6 Months)</h6>
+                    <small class="text-muted">Dynamic compliance trajectory computed from official checklist audits</small>
+                </div>
+                <span class="badge bg-success bg-opacity-10 text-success">Target: >= 85%</span>
+            </div>
+            <div style="height: 280px;">
+                <canvas id="complianceTrendsChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart 2: Farm Type Distribution (Doughnut) -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm p-4 h-100" style="border-radius: var(--radius-md);">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h6 class="fw-bold m-0"><i class="fa-solid fa-chart-pie text-success me-2"></i>Facility Distribution</h6>
+                    <small class="text-muted">Pig vs Poultry vs Mixed</small>
+                </div>
+            </div>
+            <div style="height: 280px;">
+                <canvas id="farmDistributionChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Secondary Charts Row -->
+<div class="row g-4 mb-4">
+    <!-- Chart 3: Monthly Inspections Stacked Bar -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card border-0 shadow-sm p-4 h-100" style="border-radius: var(--radius-md);">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold m-0"><i class="fa-solid fa-clipboard-check text-success me-2"></i>Monthly Audits</h6>
+                <span class="badge bg-light text-dark border">Completed vs Pending</span>
+            </div>
+            <div style="height: 230px;">
+                <canvas id="inspectionsBarChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart 4: Vaccination Status -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card border-0 shadow-sm p-4 h-100" style="border-radius: var(--radius-md);">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold m-0"><i class="fa-solid fa-syringe text-info me-2"></i>Vaccination Status</h6>
+                <span class="badge bg-light text-dark border">Coverage Ratio</span>
+            </div>
+            <div style="height: 230px;">
+                <canvas id="vaccinationPieChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart 5: Disease Cases by Severity -->
+    <div class="col-md-12 col-lg-4">
+        <div class="card border-0 shadow-sm p-4 h-100" style="border-radius: var(--radius-md);">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold m-0"><i class="fa-solid fa-virus text-danger me-2"></i>Disease Severity Breakdown</h6>
+                <span class="badge bg-light text-dark border">Risk Categories</span>
+            </div>
+            <div style="height: 230px;">
+                <canvas id="diseaseSeverityChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activities, Upcoming Audits, and Quick Action Center -->
+<div class="row g-4">
+    <!-- Left Column: Recent Biosecurity Activities Feed -->
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm p-4" style="border-radius: var(--radius-md);">
+            <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                <h6 class="fw-bold m-0">
+                    <i class="fa-solid fa-clock-rotate-left text-success me-2"></i>Recent Biosecurity Activities
+                </h6>
+                <a asp-controller="Biosecurity" asp-action="Index" class="text-success small fw-semibold">View All Logs</a>
+            </div>
+
+            @if (!Model.RecentActivities.Any())
+            {
+                <div class="text-center py-4 text-muted">
+                    <i class="fa-solid fa-clipboard-list fs-2 mb-2 text-secondary"></i>
+                    <div>No activities logged yet for this selection.</div>
+                </div>
+            }
+            else
+            {
+                <div class="d-flex flex-column gap-3">
+                    @foreach (var act in Model.RecentActivities)
+                    {
+                        <div class="d-flex align-items-start gap-3 p-3 rounded bg-light bg-opacity-50 border">
+                            <div class="stat-icon green" style="width: 40px; height: 40px; font-size: 16px; flex-shrink: 0;">
+                                @switch (act.Category)
+                                {
+                                    case FarmShield.Models.Enums.BiosecurityCategory.VisitorManagement:
+                                        <i class="fa-solid fa-id-card-clip"></i>
+                                        break;
+                                    case FarmShield.Models.Enums.BiosecurityCategory.CleaningDisinfection:
+                                        <i class="fa-solid fa-pump-soap"></i>
+                                        break;
+                                    case FarmShield.Models.Enums.BiosecurityCategory.FeedWaterManagement:
+                                        <i class="fa-solid fa-faucet-drip"></i>
+                                        break;
+                                    case FarmShield.Models.Enums.BiosecurityCategory.PestRodentControl:
+                                        <i class="fa-solid fa-bug-slash"></i>
+                                        break;
+                                    case FarmShield.Models.Enums.BiosecurityCategory.WasteManagement:
+                                        <i class="fa-solid fa-dumpster-fire"></i>
+                                        break;
+                                    default:
+                                        <i class="fa-solid fa-shield-virus"></i>
+                                        break;
+                                }
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <strong class="text-dark small">@act.ActivityType</strong>
+                                    <small class="text-muted">@act.ActivityDate.ToString("MMM dd, HH:mm")</small>
+                                </div>
+                                <div class="text-secondary small mt-1">@act.Description</div>
+                                <div class="d-flex gap-2 align-items-center mt-2 small">
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary">@act.Farm?.Name</span>
+                                    <span class="text-muted"><i class="fa-solid fa-user me-1"></i>@act.ResponsiblePerson</span>
+                                    @if (act.ComplianceStatus == FarmShield.Models.Enums.ComplianceStatus.Compliant)
+                                    {
+                                        <span class="badge bg-success bg-opacity-25 text-success">Compliant</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning bg-opacity-25 text-dark">@act.ComplianceStatus</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Right Column: Upcoming Inspections & Quick Actions -->
+    <div class="col-lg-5">
+        <!-- Upcoming Inspections -->
+        <div class="card border-0 shadow-sm p-4 mb-4" style="border-radius: var(--radius-md);">
+            <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                <h6 class="fw-bold m-0"><i class="fa-solid fa-calendar-check text-primary me-2"></i>Upcoming Audits</h6>
+                <a asp-controller="Inspections" asp-action="Index" class="text-success small fw-semibold">View All</a>
+            </div>
+
+            @if (!Model.UpcomingInspections.Any())
+            {
+                <div class="text-center py-4 text-muted">
+                    <i class="fa-solid fa-check-circle fs-2 mb-2 text-success"></i>
+                    <div>All scheduled biosecurity inspections completed!</div>
+                </div>
+            }
+            else
+            {
+                <div class="d-flex flex-column gap-2">
+                    @foreach (var ins in Model.UpcomingInspections)
+                    {
+                        <div class="p-3 rounded border d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="fw-bold small">@ins.InspectionCode</div>
+                                <div class="text-muted small">@ins.Farm?.Name</div>
+                                <small class="text-secondary"><i class="fa-solid fa-user-doctor me-1"></i>@ins.InspectorName</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-info text-white">@ins.Status</span>
+                                <div class="text-muted small mt-1">@ins.InspectionDate.ToString("MMM dd, yyyy")</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- Quick Actions Card -->
+        <div class="card border-0 shadow-sm p-4" style="border-radius: var(--radius-md); background: linear-gradient(135deg, #F8FAF8, #EFF6F1);">
+            <h6 class="fw-bold mb-3"><i class="fa-solid fa-bolt text-warning me-2"></i>Quick Action Center</h6>
+            <div class="d-grid gap-2">
+                <a asp-controller="Biosecurity" asp-action="AddVisitor" class="btn btn-outline-success text-start bg-white shadow-sm">
+                    <i class="fa-solid fa-id-card-clip me-2 text-success"></i> Log Gate Visitor / Vehicle
+                </a>
+                <a asp-controller="Inspections" asp-action="Create" class="btn btn-outline-success text-start bg-white shadow-sm">
+                    <i class="fa-solid fa-clipboard-check me-2 text-primary"></i> Conduct Digital Inspection
+                </a>
+                <a asp-controller="Diseases" asp-action="Report" class="btn btn-outline-danger text-start bg-white shadow-sm">
+                    <i class="fa-solid fa-triangle-exclamation me-2 text-danger"></i> Report Suspected Disease Case
+                </a>
+                <a asp-controller="Vaccinations" asp-action="Schedule" class="btn btn-outline-info text-start bg-white shadow-sm">
+                    <i class="fa-solid fa-syringe me-2 text-info"></i> Record Animal Vaccination
+                </a>
+                <a asp-controller="Reports" asp-action="Index" class="btn btn-outline-secondary text-start bg-white shadow-sm">
+                    <i class="fa-solid fa-file-csv me-2 text-secondary"></i> Export Regulatory PDF/CSV
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Pass Model Data from SQL Server EF Core to Client Chart.js Initializer
+            const dashboardData = {
+                farmTypeLabels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.FarmTypeLabels)),
+                farmTypeCounts: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.FarmTypeCounts)),
+                monthlyLabels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyLabels)),
+                monthlyRegistrations: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyRegistrations)),
+                monthlyInspectionsCompleted: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyInspectionsCompleted)),
+                monthlyInspectionsPending: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyInspectionsPending)),
+                complianceTrends: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ComplianceTrends)),
+                vaccinationsCompleted: @Model.VaccinationsCompleted,
+                vaccinationsScheduled: @Model.VaccinationsScheduled,
+                vaccinationsOverdue: @Model.VaccinationsOverdue,
+                diseaseSeverityLabels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.DiseaseSeverityLabels)),
+                diseaseSeverityCounts: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.DiseaseSeverityCounts))
+            };
+
+            window.initDashboardCharts(dashboardData);
+        });
+    </script>
+}
+

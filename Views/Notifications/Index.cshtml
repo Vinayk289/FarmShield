@@ -1,0 +1,140 @@
+@model List<FarmShield.Models.Entities.Notification>
+@{
+    ViewData["Title"] = "Notification & Alert Center";
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">
+            <i class="fa-solid fa-bell text-success me-2"></i>Biosecurity Alert & Notification Center
+        </h2>
+        <p class="text-muted m-0">Critical alerts for disease outbreaks, pending audits, vaccine deadlines, and gate breaches.</p>
+    </div>
+
+    @if (Model.Any(n => !n.IsRead))
+    {
+        <form asp-action="MarkAllAsRead" method="post">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-outline-success btn-sm shadow-sm">
+                <i class="fa-solid fa-check-double me-1"></i> Mark All as Read
+            </button>
+        </form>
+    }
+</div>
+
+<!-- Filters -->
+<div class="card border-0 shadow-sm p-3 mb-4" style="border-radius: var(--radius-md);">
+    <form method="get" asp-action="Index" class="row g-2 align-items-center">
+        <div class="col-md-5">
+            <select name="categoryFilter" class="form-select">
+                <option value="">All Notification Categories</option>
+                <option value="1" selected="@(ViewBag.CategoryFilter == FarmShield.Models.Enums.NotificationCategory.DiseaseAlert)">Disease Outbreak Alerts</option>
+                <option value="2" selected="@(ViewBag.CategoryFilter == FarmShield.Models.Enums.NotificationCategory.InspectionDue)">Inspection & Audit Notices</option>
+                <option value="3" selected="@(ViewBag.CategoryFilter == FarmShield.Models.Enums.NotificationCategory.OverdueVaccination)">Vaccine Reminders</option>
+                <option value="4" selected="@(ViewBag.CategoryFilter == FarmShield.Models.Enums.NotificationCategory.BiosecurityViolation)">Biosecurity Violations</option>
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <div class="form-check mt-2">
+                <input class="form-check-input" type="checkbox" name="unreadOnly" value="true" id="unreadOnlyCheck" @(ViewBag.UnreadOnly == true ? "checked" : "") onchange="this.form.submit()">
+                <label class="form-check-label text-dark fw-semibold" for="unreadOnlyCheck">
+                    Show Unread Only (@ViewBag.TotalUnread unread)
+                </label>
+            </div>
+        </div>
+
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-forest flex-grow-1">Filter</button>
+            <a asp-action="Index" class="btn btn-outline-secondary"><i class="fa-solid fa-rotate-left"></i></a>
+        </div>
+    </form>
+</div>
+
+<!-- Notifications Stream -->
+<div class="card border-0 shadow-sm p-4" style="border-radius: var(--radius-md);">
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5 text-muted">
+            <i class="fa-solid fa-bell-slash fs-2 mb-2 text-secondary"></i>
+            <div>Zero notifications matching your filter.</div>
+        </div>
+    }
+    else
+    {
+        <div class="d-flex flex-column gap-3">
+            @foreach (var notif in Model)
+            {
+                <div class="p-3 rounded border @(!notif.IsRead ? "border-success bg-success bg-opacity-10" : "bg-light bg-opacity-50") d-flex align-items-start gap-3">
+                    <div class="stat-icon @(notif.Severity == FarmShield.Models.Enums.NotificationSeverity.Danger ? "red" : (notif.Severity == FarmShield.Models.Enums.NotificationSeverity.Warning ? "orange" : (notif.Severity == FarmShield.Models.Enums.NotificationSeverity.Success ? "green" : "blue")))" style="width: 44px; height: 44px; font-size: 18px; flex-shrink: 0;">
+                        @switch (notif.Category)
+                        {
+                            case FarmShield.Models.Enums.NotificationCategory.DiseaseAlert:
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                break;
+                            case FarmShield.Models.Enums.NotificationCategory.InspectionDue:
+                                <i class="fa-solid fa-clipboard-check"></i>
+                                break;
+                            case FarmShield.Models.Enums.NotificationCategory.OverdueVaccination:
+                                <i class="fa-solid fa-syringe"></i>
+                                break;
+                            case FarmShield.Models.Enums.NotificationCategory.BiosecurityViolation:
+                                <i class="fa-solid fa-shield-virus"></i>
+                                break;
+                            default:
+                                <i class="fa-solid fa-bell"></i>
+                                break;
+                        }
+                    </div>
+
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="fw-bold mb-1 text-dark">
+                                    @notif.Title
+                                    @if (!notif.IsRead)
+                                    {
+                                        <span class="badge bg-success ms-2" style="font-size: 0.65rem;">NEW</span>
+                                    }
+                                </h6>
+                            </div>
+                            <small class="text-muted">@notif.CreatedAt.ToString("MMM dd, yyyy HH:mm")</small>
+                        </div>
+
+                        <p class="text-secondary small mb-2">@notif.Message</p>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex gap-2">
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary">@notif.Category</span>
+                                @if (notif.Farm != null)
+                                {
+                                    <span class="badge bg-light text-dark border">@notif.Farm.Name</span>
+                                }
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                @if (!string.IsNullOrEmpty(notif.TargetUrl))
+                                {
+                                    <a href="@notif.TargetUrl" class="btn btn-sm btn-outline-dark">
+                                        <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> View Context
+                                    </a>
+                                }
+                                @if (!notif.IsRead)
+                                {
+                                    <form asp-action="MarkAsRead" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@notif.NotificationId" />
+                                        <button type="submit" class="btn btn-sm btn-outline-success">
+                                            <i class="fa-solid fa-check me-1"></i> Dismiss
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+

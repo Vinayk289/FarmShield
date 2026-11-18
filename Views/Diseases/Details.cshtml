@@ -1,0 +1,131 @@
+@model FarmShield.Models.Entities.DiseaseReport
+@{
+    ViewData["Title"] = $"Case: {Model.DiseaseName}";
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <h2 class="fw-bold m-0 text-danger"><i class="fa-solid fa-virus-covid me-2"></i>Case: @Model.DiseaseName</h2>
+            <span class="badge @(Model.Severity == FarmShield.Models.Enums.DiseaseSeverity.Critical ? "bg-danger" : (Model.Severity == FarmShield.Models.Enums.DiseaseSeverity.High ? "bg-danger bg-opacity-75" : "bg-warning text-dark"))">
+                @Model.Severity Severity
+            </span>
+            <span class="badge @(Model.VerificationStatus == FarmShield.Models.Enums.DiseaseVerificationStatus.Resolved ? "bg-success" : "bg-primary")">
+                @Model.VerificationStatus
+            </span>
+        </div>
+        <p class="text-muted m-0"><i class="fa-solid fa-building me-1"></i>Facility: @Model.Farm?.Name | Detected: @Model.DetectionDate.ToString("MMMM dd, yyyy")</p>
+    </div>
+
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+        <i class="fa-solid fa-arrow-left me-1"></i> Back to Surveillance
+    </a>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Clinical Details -->
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm p-4 h-100" style="border-radius: var(--radius-md);">
+            <h5 class="fw-bold mb-3 border-bottom pb-2">Epidemiological Investigation Summary</h5>
+            
+            <div class="row g-3 mb-3">
+                <div class="col-sm-6">
+                    <div class="p-3 bg-light rounded">
+                        <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Morbidity / Affected Count</small>
+                        <div class="fs-4 fw-bold text-dark">@Model.AffectedCount animals</div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="p-3 bg-light rounded">
+                        <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Mortality Recorded</small>
+                        <div class="fs-4 fw-bold text-danger">@Model.MortalityCount deaths</div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="p-3 bg-light rounded">
+                        <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Disease Category</small>
+                        <div class="fs-5 fw-bold text-dark">@Model.DiseaseCategory</div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="p-3 bg-light rounded">
+                        <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Bio-Isolation Quarantine</small>
+                        <div class="fs-5 fw-bold @(Model.IsolationImplemented ? "text-success" : "text-danger")">
+                            @(Model.IsolationImplemented ? "Strictly Enforced" : "Not Enforced")
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold text-secondary small">Observed Symptoms & Pathological Signs</label>
+                <div class="p-3 bg-light rounded border text-dark">@Model.Symptoms</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold text-secondary small">Administered Therapy & Interventions</label>
+                <div class="p-3 bg-light rounded border text-dark">@(string.IsNullOrEmpty(Model.TreatmentGiven) ? "None recorded." : Model.TreatmentGiven)</div>
+            </div>
+
+            <div class="d-flex justify-content-between text-muted small mt-auto pt-2 border-top">
+                <span>Reported by: <strong>@Model.ReportedBy</strong></span>
+                <span>Report Date: @Model.ReportDate.ToString("yyyy-MM-dd HH:mm")</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Veterinary Verification Section -->
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm p-4 h-100" style="border-radius: var(--radius-md);">
+            <h5 class="fw-bold mb-3 border-bottom pb-2 text-primary">
+                <i class="fa-solid fa-user-doctor me-2"></i>Veterinary Verification
+            </h5>
+
+            <div class="mb-3">
+                <div class="small text-muted mb-1">Current State:</div>
+                <span class="badge @(Model.VerificationStatus == FarmShield.Models.Enums.DiseaseVerificationStatus.Resolved ? "bg-success" : (Model.VerificationStatus == FarmShield.Models.Enums.DiseaseVerificationStatus.Confirmed ? "bg-danger" : "bg-warning text-dark")) fs-6 px-3 py-2">
+                    @Model.VerificationStatus
+                </span>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.VeterinaryNotes))
+            {
+                <div class="p-3 mb-3 rounded bg-info bg-opacity-10 border border-info border-opacity-25 small">
+                    <strong class="text-dark d-block mb-1">Veterinary Differential Diagnosis Notes:</strong>
+                    @Model.VeterinaryNotes
+                    <div class="mt-2 text-muted" style="font-size: 0.75rem;">Verified by: <strong>@Model.VerifiedBy</strong> (@(Model.VerificationDate?.ToString("yyyy-MM-dd") ?? ""))</div>
+                </div>
+            }
+
+            @if (User.IsInRole(AppRoles.SuperAdmin) || User.IsInRole(AppRoles.VeterinaryOfficer))
+            {
+                <div class="p-3 rounded bg-light border mt-auto">
+                    <h6 class="fw-bold text-dark mb-2">Update Diagnosis / Verification State</h6>
+                    <form asp-action="UpdateVerification" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="reportId" value="@Model.ReportId" />
+
+                        <div class="mb-2">
+                            <label class="form-label small">Verification Status</label>
+                            <select name="verificationStatus" class="form-select form-select-sm">
+                                <option value="2" selected="@(Model.VerificationStatus == FarmShield.Models.Enums.DiseaseVerificationStatus.UnderInvestigation)">Under Investigation (PCR / Swabs Sent)</option>
+                                <option value="3" selected="@(Model.VerificationStatus == FarmShield.Models.Enums.DiseaseVerificationStatus.Confirmed)">Confirmed Outbreak</option>
+                                <option value="4" selected="@(Model.VerificationStatus == FarmShield.Models.Enums.DiseaseVerificationStatus.Resolved)">Resolved / Full Recovery (Lift Quarantine)</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small">Official Notes & Diagnosis</label>
+                            <textarea name="veterinaryNotes" class="form-control form-control-sm" rows="3" required placeholder="Laboratory findings, antimicrobial therapy, quarantine instructions...">@Model.VeterinaryNotes</textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-sm w-100">
+                            <i class="fa-solid fa-check me-1"></i> Update Veterinary Case
+                        </button>
+                    </form>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+

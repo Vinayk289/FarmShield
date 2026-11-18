@@ -1,0 +1,510 @@
+@model FarmShield.ViewModels.FarmDetailsViewModel
+@{
+    ViewData["Title"] = Model.Farm.Name;
+    var farm = Model.Farm;
+    int currentLivestockCount = farm.FarmType == FarmShield.Models.Enums.FarmType.Pig ? Model.TotalPigs : Model.TotalBirds;
+    double capacityUtilized = farm.TotalCapacity > 0 ? Math.Round(((double)currentLivestockCount / farm.TotalCapacity) * 100.0, 1) : 0;
+}
+
+<!-- Farm Header Profile Card -->
+<div class="card border-0 shadow-sm overflow-hidden mb-4" style="border-radius: var(--radius-md);">
+    <div class="position-relative" style="height: 220px;">
+        <img src="@farm.ImageUrl" class="w-100 h-100" style="object-fit: cover;" alt="@farm.Name" onerror="this.src='https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=1200&q=80'" />
+        <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(15, 73, 46, 0.9) 100%);"></div>
+
+        <div class="position-absolute bottom-0 start-0 p-4 text-white w-100 d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="badge bg-light text-dark fw-bold">@farm.FarmCode</span>
+                    <span class="badge bg-success">@farm.FarmType Facility</span>
+                    <span class="badge bg-info">@farm.BioSafetyLevel.ToString().Replace("_", " ")</span>
+                </div>
+                <h2 class="fw-bold m-0 text-white">@farm.Name</h2>
+                <small class="text-white text-opacity-75">
+                    <i class="fa-solid fa-location-dot me-1"></i>@farm.Address, @farm.District, @farm.State
+                </small>
+            </div>
+
+            <div class="d-flex gap-2">
+                @if (User.IsInRole(AppRoles.SuperAdmin) || User.IsInRole(AppRoles.FarmOwner) || User.IsInRole(AppRoles.FarmManager))
+                {
+                    <a asp-action="Edit" asp-route-id="@farm.FarmId" class="btn btn-light btn-sm shadow-sm">
+                        <i class="fa-solid fa-pen-to-square me-1"></i> Edit Facility
+                    </a>
+                }
+                <a asp-controller="Inspections" asp-action="Create" asp-route-farmId="@farm.FarmId" class="btn btn-success btn-sm shadow-sm" style="background-color: #208b59;">
+                    <i class="fa-solid fa-clipboard-check me-1"></i> Launch Audit
+                </a>
+                @if (User.IsInRole(AppRoles.SuperAdmin))
+                {
+                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteFarmModal">
+                        <i class="fa-solid fa-trash me-1"></i> Delete
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats Bar -->
+    <div class="card-body bg-white p-3 border-top">
+        <div class="row g-3 text-center">
+            <div class="col-6 col-md-3 border-end">
+                <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Capacity Utilization</small>
+                <div class="fs-4 fw-bold text-dark">@capacityUtilized%</div>
+                <small class="text-muted">@currentLivestockCount / @farm.TotalCapacity.ToString("N0")</small>
+            </div>
+            <div class="col-6 col-md-3 border-end">
+                <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Latest Biosecurity Compliance</small>
+                <div class="fs-4 fw-bold text-success">@Model.LatestComplianceRate%</div>
+                <small class="text-muted">Certified Audit Score</small>
+            </div>
+            <div class="col-6 col-md-3 border-end">
+                <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Active Disease Cases</small>
+                <div class="fs-4 fw-bold @(Model.ActiveDiseaseAlerts > 0 ? "text-danger" : "text-success")">@Model.ActiveDiseaseAlerts</div>
+                <small class="text-muted">Under Quarantine</small>
+            </div>
+            <div class="col-6 col-md-3">
+                <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Facility Area</small>
+                <div class="fs-4 fw-bold text-primary">@farm.FarmAreaAcres <span class="fs-6">acres</span></div>
+                <small class="text-muted">Reg: @farm.RegistrationDate.ToString("MMM yyyy")</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabs Navigation -->
+<ul class="nav nav-pills mb-4 gap-2" id="farmTabs" role="tablist">
+    <li class="nav-item">
+        <button class="nav-link active px-3" data-bs-toggle="pill" data-bs-target="#overviewTab">
+            <i class="fa-solid fa-circle-info me-1"></i> Overview & Specs
+        </button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link px-3" data-bs-toggle="pill" data-bs-target="#livestockTab">
+            <i class="fa-solid fa-paw me-1"></i> Livestock Inventory
+        </button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link px-3" data-bs-toggle="pill" data-bs-target="#inspectionsTab">
+            <i class="fa-solid fa-clipboard-check me-1"></i> Audits & Certifications
+        </button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link px-3" data-bs-toggle="pill" data-bs-target="#visitorsTab">
+            <i class="fa-solid fa-id-card-clip me-1"></i> Gate Screening & Visitors
+        </button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link px-3" data-bs-toggle="pill" data-bs-target="#healthTab">
+            <i class="fa-solid fa-shield-virus me-1"></i> Health & Immunizations
+        </button>
+    </li>
+</ul>
+
+<!-- Tab Panes -->
+<div class="tab-content" id="farmTabsContent">
+    <!-- TAB 1: OVERVIEW -->
+    <div class="tab-pane fade show active" id="overviewTab">
+        <div class="row g-4">
+            <div class="col-lg-7">
+                <div class="card border-0 shadow-sm p-4 h-100" style="border-radius: var(--radius-md);">
+                    <h5 class="fw-bold mb-3 border-bottom pb-2">Perimeter & Biosafety Specifications</h5>
+                    <p class="text-secondary">@farm.Description</p>
+
+                    <div class="row g-3 mt-2">
+                        <div class="col-sm-6">
+                            <div class="p-3 bg-light rounded">
+                                <div class="text-muted small">Registered Owner</div>
+                                <div class="fw-bold">@farm.OwnerName</div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="p-3 bg-light rounded">
+                                <div class="text-muted small">Official Phone</div>
+                                <div class="fw-bold">@farm.ContactNumber</div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="p-3 bg-light rounded">
+                                <div class="text-muted small">Official Email</div>
+                                <div class="fw-bold">@farm.Email</div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="p-3 bg-light rounded">
+                                <div class="text-muted small">Operational Status</div>
+                                <span class="badge @(farm.Status == FarmShield.Models.Enums.FarmStatus.Active ? "bg-success" : "bg-warning text-dark")">@farm.Status</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-sm p-4 h-100" style="border-radius: var(--radius-md);">
+                    <h5 class="fw-bold mb-3 border-bottom pb-2">Recent Biosecurity Logs</h5>
+                    @if (!Model.RecentActivities.Any())
+                    {
+                        <div class="text-center py-4 text-muted small">No activities logged yet.</div>
+                    }
+                    else
+                    {
+                        <div class="d-flex flex-column gap-2">
+                            @foreach (var act in Model.RecentActivities)
+                            {
+                                <div class="p-2 border rounded small">
+                                    <div class="d-flex justify-content-between">
+                                        <strong class="text-dark">@act.ActivityType</strong>
+                                        <small class="text-muted">@act.ActivityDate.ToString("MM/dd")</small>
+                                    </div>
+                                    <div class="text-muted">@act.Description</div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 2: LIVESTOCK INVENTORY -->
+    <div class="tab-pane fade" id="livestockTab">
+        <div class="card border-0 shadow-sm p-4" style="border-radius: var(--radius-md);">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold m-0">Livestock Population</h5>
+                @if (farm.FarmType == FarmShield.Models.Enums.FarmType.Pig)
+                {
+                    <a asp-controller="Pigs" asp-action="Create" asp-route-farmId="@farm.FarmId" class="btn btn-forest btn-sm">
+                        <i class="fa-solid fa-plus me-1"></i> Register Pig Tag
+                    </a>
+                }
+                else
+                {
+                    <a asp-controller="Poultry" asp-action="Create" asp-route-farmId="@farm.FarmId" class="btn btn-forest btn-sm">
+                        <i class="fa-solid fa-plus me-1"></i> Place Poultry Batch
+                    </a>
+                }
+            </div>
+
+            @if (farm.FarmType == FarmShield.Models.Enums.FarmType.Pig || farm.FarmType == FarmShield.Models.Enums.FarmType.Mixed)
+            {
+                <h6 class="fw-bold text-success mt-2 mb-2"><i class="fa-solid fa-piggy-bank me-2"></i>Swine Herd Records (@farm.Animals.Count animals)</h6>
+                <div class="table-responsive mb-4">
+                    <table class="table custom-table">
+                        <thead>
+                            <tr>
+                                <th>Tag Number</th>
+                                <th>Breed</th>
+                                <th>Category</th>
+                                <th>Weight</th>
+                                <th>Health Condition</th>
+                                <th>Pen / Barn</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var pig in farm.Animals.Take(10))
+                            {
+                                <tr>
+                                    <td class="fw-bold text-dark">@pig.TagNumber</td>
+                                    <td>@pig.Breed</td>
+                                    <td><span class="badge bg-light text-dark border">@pig.Category</span></td>
+                                    <td>@pig.CurrentWeightKg kg</td>
+                                    <td>
+                                        <span class="badge @(pig.HealthCondition == FarmShield.Models.Enums.AnimalHealthStatus.Healthy ? "bg-success" : "bg-warning text-dark")">
+                                            @pig.HealthCondition
+                                        </span>
+                                    </td>
+                                    <td>@pig.PenBarnNumber</td>
+                                    <td>
+                                        <a asp-controller="Pigs" asp-action="Details" asp-route-id="@pig.AnimalId" class="btn btn-sm btn-outline-secondary">Profile</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+            @if (farm.FarmType == FarmShield.Models.Enums.FarmType.Poultry || farm.FarmType == FarmShield.Models.Enums.FarmType.Mixed)
+            {
+                <h6 class="fw-bold text-info mt-2 mb-2"><i class="fa-solid fa-feather me-2"></i>Poultry Flocks (@farm.PoultryBatches.Count batches)</h6>
+                <div class="table-responsive">
+                    <table class="table custom-table">
+                        <thead>
+                            <tr>
+                                <th>Batch Code</th>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Current Count</th>
+                                <th>Mortality</th>
+                                <th>House</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var batch in farm.PoultryBatches)
+                            {
+                                <tr>
+                                    <td class="fw-bold text-dark">@batch.BatchCode</td>
+                                    <td>@batch.BatchName</td>
+                                    <td>@batch.PoultryType</td>
+                                    <td class="fw-bold">@batch.CurrentBirdCount.ToString("N0")</td>
+                                    <td class="text-danger">@batch.TotalMortality</td>
+                                    <td>@batch.HouseNumber</td>
+                                    <td><span class="badge bg-success">@batch.Status</span></td>
+                                    <td>
+                                        <a asp-controller="Poultry" asp-action="Details" asp-route-id="@batch.BatchId" class="btn btn-sm btn-outline-secondary">Flock Logs</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- TAB 3: AUDITS & INSPECTIONS -->
+    <div class="tab-pane fade" id="inspectionsTab">
+        <div class="card border-0 shadow-sm p-4" style="border-radius: var(--radius-md);">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold m-0">Biosecurity Audits & Regulatory Inspections</h5>
+                <a asp-controller="Inspections" asp-action="Create" asp-route-farmId="@farm.FarmId" class="btn btn-forest btn-sm">
+                    <i class="fa-solid fa-plus me-1"></i> Conduct New Inspection
+                </a>
+            </div>
+
+            @if (!Model.RecentInspections.Any())
+            {
+                <div class="text-center py-4 text-muted">No biosecurity audits recorded yet.</div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table custom-table">
+                        <thead>
+                            <tr>
+                                <th>Inspection Code</th>
+                                <th>Audit Date</th>
+                                <th>Auditor</th>
+                                <th>Compliance Score</th>
+                                <th>Risk Level</th>
+                                <th>Certification</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var ins in Model.RecentInspections)
+                            {
+                                <tr>
+                                    <td class="fw-bold">@ins.InspectionCode</td>
+                                    <td>@ins.InspectionDate.ToString("yyyy-MM-dd")</td>
+                                    <td>@ins.InspectorName</td>
+                                    <td>
+                                        <div class="fw-bold @(ins.CompliancePercentage >= 85 ? "text-success" : "text-warning")">
+                                            @ins.CompliancePercentage%
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge @(ins.RiskLevel == FarmShield.Models.Enums.RiskLevel.Low ? "bg-success" : "bg-warning text-dark")">
+                                            @ins.RiskLevel Risk
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if (ins.CertifiedBiosecure)
+                                        {
+                                            <span class="badge bg-success"><i class="fa-solid fa-award me-1"></i> Certified</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">Pending Remediation</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <a asp-controller="Inspections" asp-action="Details" asp-route-id="@ins.InspectionId" class="btn btn-sm btn-outline-dark">
+                                            <i class="fa-solid fa-file-lines me-1"></i> View Audit Sheet
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- TAB 4: VISITORS & GATE -->
+    <div class="tab-pane fade" id="visitorsTab">
+        <div class="card border-0 shadow-sm p-4" style="border-radius: var(--radius-md);">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold m-0">Gate Access & Vehicle Decontamination Log</h5>
+                <a asp-controller="Biosecurity" asp-action="AddVisitor" asp-route-farmId="@farm.FarmId" class="btn btn-forest btn-sm">
+                    <i class="fa-solid fa-plus me-1"></i> Check In Visitor
+                </a>
+            </div>
+
+            @if (!Model.RecentVisitors.Any())
+            {
+                <div class="text-center py-4 text-muted">No visitors logged at perimeter gate.</div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table custom-table">
+                        <thead>
+                            <tr>
+                                <th>Visitor Name</th>
+                                <th>Organization</th>
+                                <th>Purpose</th>
+                                <th>Entry Time</th>
+                                <th>Vehicle Plate</th>
+                                <th>72h Other Farm?</th>
+                                <th>Disinfected?</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var vis in Model.RecentVisitors)
+                            {
+                                <tr>
+                                    <td class="fw-bold">@vis.VisitorName</td>
+                                    <td>@vis.Organization</td>
+                                    <td>@vis.PurposeOfVisit</td>
+                                    <td>@vis.EntryTime.ToString("MMM dd, HH:mm")</td>
+                                    <td>@(vis.VehicleNumber ?? "N/A")</td>
+                                    <td>
+                                        @if (vis.VisitedAnotherFarmRecently)
+                                        {
+                                            <span class="badge bg-danger"><i class="fa-solid fa-triangle-exclamation me-1"></i> YES (Alert)</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">NO</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (vis.DisinfectionConfirmed)
+                                        {
+                                            <span class="badge bg-success"><i class="fa-solid fa-check me-1"></i> Yes</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark">No</span>
+                                        }
+                                    </td>
+                                    <td><span class="badge bg-success">@vis.ApprovalStatus</span></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- TAB 5: HEALTH & VACCINATIONS -->
+    <div class="tab-pane fade" id="healthTab">
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm p-4 h-100" style="border-radius: var(--radius-md);">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold m-0"><i class="fa-solid fa-virus-covid text-danger me-2"></i>Active Disease Cases</h6>
+                        <a asp-controller="Diseases" asp-action="Report" asp-route-farmId="@farm.FarmId" class="btn btn-sm btn-outline-danger">Report Case</a>
+                    </div>
+                    @if (!Model.ActiveDiseases.Any())
+                    {
+                        <div class="text-center py-4 text-muted small">
+                            <i class="fa-solid fa-shield-heart fs-3 text-success mb-2"></i>
+                            <div>Zero active disease outbreaks. Facility herd health optimal.</div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="d-flex flex-column gap-2">
+                            @foreach (var dis in Model.ActiveDiseases)
+                            {
+                                <div class="p-3 rounded border border-danger border-opacity-25 bg-danger bg-opacity-10">
+                                    <div class="d-flex justify-content-between">
+                                        <strong class="text-danger">@dis.DiseaseName</strong>
+                                        <span class="badge bg-danger">@dis.Severity</span>
+                                    </div>
+                                    <small class="text-dark d-block mt-1">@dis.Symptoms</small>
+                                    <div class="d-flex justify-content-between align-items-center mt-2 small text-muted">
+                                        <span>Affected: @dis.AffectedCount</span>
+                                        <span>Status: @dis.VerificationStatus</span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm p-4 h-100" style="border-radius: var(--radius-md);">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold m-0"><i class="fa-solid fa-syringe text-info me-2"></i>Upcoming Vaccinations</h6>
+                        <a asp-controller="Vaccinations" asp-action="Schedule" asp-route-farmId="@farm.FarmId" class="btn btn-sm btn-outline-info">Schedule</a>
+                    </div>
+                    @if (!Model.UpcomingVaccinations.Any())
+                    {
+                        <div class="text-center py-4 text-muted small">
+                            <i class="fa-solid fa-circle-check fs-3 text-success mb-2"></i>
+                            <div>All herd immunizations are up-to-date!</div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="d-flex flex-column gap-2">
+                            @foreach (var vac in Model.UpcomingVaccinations)
+                            {
+                                <div class="p-3 rounded border">
+                                    <div class="d-flex justify-content-between">
+                                        <strong>@vac.VaccineName</strong>
+                                        <span class="badge bg-info text-white">@vac.Status</span>
+                                    </div>
+                                    <small class="text-muted d-block">Target: @vac.DiseaseTargeted | Dose: @vac.DoseAdministered (@vac.Route)</small>
+                                    <div class="mt-1 small text-secondary">
+                                        <i class="fa-solid fa-calendar me-1"></i>Date: @vac.VaccinationDate.ToString("MMM dd, yyyy")
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Delete Farm Confirmation -->
+@if (User.IsInRole(AppRoles.SuperAdmin))
+{
+    <div class="modal fade" id="deleteFarmModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title"><i class="fa-solid fa-triangle-exclamation me-2"></i>Confirm Facility Deletion</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to permanently delete <strong>@farm.Name</strong> (@farm.FarmCode)?</p>
+                    <div class="alert alert-warning small">
+                        This action will cascade delete or archive all associated pigs, poultry batches, visitor records, biosecurity activities, and inspection histories.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form asp-action="Delete" asp-route-id="@farm.FarmId" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger">Permanently Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+

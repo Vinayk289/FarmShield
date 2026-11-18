@@ -1,0 +1,103 @@
+@model FarmShield.ViewModels.WasteCreateViewModel
+@{
+    ViewData["Title"] = "Record Waste Disposal";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold mb-1"><i class="fa-solid fa-dumpster-fire text-danger me-2"></i>Log Waste & Carcass Disposal</h3>
+                <p class="text-muted small m-0">Ensure environmental compliance and bio-exclusion during livestock mortality disposal.</p>
+            </div>
+            <a asp-action="WasteManagement" class="btn btn-outline-secondary btn-sm">
+                <i class="fa-solid fa-arrow-left me-1"></i> Back
+            </a>
+        </div>
+
+        <div class="card border-0 shadow-sm p-4 p-md-5" style="border-radius: var(--radius-md);">
+            <form asp-action="AddWaste" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small mb-4"></div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="FarmId" class="form-label">Facility</label>
+                        <select asp-for="FarmId" class="form-select">
+                            @foreach (var farm in Model.AvailableFarms)
+                            {
+                                <option value="@farm.FarmId">@farm.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="DisposalDate" class="form-label"></label>
+                        <input asp-for="DisposalDate" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="WasteType" class="form-label"></label>
+                        <select asp-for="WasteType" class="form-select">
+                            <option value="Manure Compost">Manure / Slurry Compost</option>
+                            <option value="Mortality Carcass">Mortality Carcass (Biosecure Disposal)</option>
+                            <option value="Medical Waste">Veterinary Needles & Medical Waste</option>
+                            <option value="General Refuse">Contaminated Packaging & Bedding</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="DisposalMethod" class="form-label"></label>
+                        <select asp-for="DisposalMethod" class="form-select">
+                            <option value="Covered High-Heat Aerated Composting">Covered High-Heat Aerated Composting (65°C+)</option>
+                            <option value="High-Temperature Bio-Incineration">High-Temperature Bio-Incineration (850°C)</option>
+                            <option value="Sanitary Deep Burial with Quicklime">Sanitary Deep Burial with Quicklime</option>
+                            <option value="Certified Hazardous Waste Collector">Certified Hazardous Waste Collector</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="QuantityKg" class="form-label"></label>
+                        <div class="input-group">
+                            <input asp-for="QuantityKg" class="form-control" />
+                            <span class="input-group-text">kg</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="DisposalDepthOrTemp" class="form-label"></label>
+                        <input asp-for="DisposalDepthOrTemp" class="form-control" placeholder="e.g. 68°C Thermophilic stage or 2.5m depth" />
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label asp-for="SupervisorName" class="form-label"></label>
+                        <input asp-for="SupervisorName" class="form-control" />
+                    </div>
+                    <div class="col-md-6 d-flex align-items-center">
+                        <div class="form-check mt-3">
+                            <input asp-for="SanitationOfDisposalAreaChecked" class="form-check-input" />
+                            <label asp-for="SanitationOfDisposalAreaChecked" class="form-check-label fw-bold small text-success">
+                                Area disinfected & sealed after disposal
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Remarks" class="form-label"></label>
+                    <textarea asp-for="Remarks" class="form-control" rows="2" placeholder="Incinerator burn duration, lime spread depth, environmental notes..."></textarea>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="WasteManagement" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-forest px-4">Save Disposal Log</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+

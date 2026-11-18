@@ -1,0 +1,104 @@
+@model FarmShield.ViewModels.RegisterViewModel
+@{
+    Layout = "_LandingLayout";
+    ViewData["Title"] = "Register Farm or Personnel";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card border-0 shadow-lg p-4 p-md-5" style="border-radius: var(--radius-lg);">
+                <div class="text-center mb-4">
+                    <div class="stat-icon green mx-auto mb-3" style="width: 50px; height: 50px;">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </div>
+                    <h3 class="fw-bold mb-1">Create FarmShield Account</h3>
+                    <p class="text-muted small">Register to implement digital biosecurity protocols</p>
+                </div>
+
+                <form asp-action="Register" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger small py-2 mb-3"></div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-sm-6">
+                            <label asp-for="FullName" class="form-label"></label>
+                            <input asp-for="FullName" class="form-control" placeholder="Dr. Sarah Jenkins" />
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-sm-6">
+                            <label asp-for="Email" class="form-label"></label>
+                            <input asp-for="Email" class="form-control" placeholder="sarah@farm.com" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-sm-6">
+                            <label asp-for="Role" class="form-label"></label>
+                            <select asp-for="Role" class="form-select">
+                                <option value="Farm Owner">Farm Owner</option>
+                                <option value="Farm Manager" selected>Farm Manager</option>
+                                <option value="Veterinary Officer">Veterinary Officer</option>
+                                <option value="Super Admin">Super Admin</option>
+                            </select>
+                            <span asp-validation-for="Role" class="text-danger small"></span>
+                        </div>
+                        <div class="col-sm-6">
+                            <label asp-for="PhoneNumber" class="form-label"></label>
+                            <input asp-for="PhoneNumber" class="form-control" placeholder="+1 (555) 019-2831" />
+                            <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-sm-6">
+                            <label asp-for="Designation" class="form-label"></label>
+                            <input asp-for="Designation" class="form-control" placeholder="Field Biosecurity Director" />
+                            <span asp-validation-for="Designation" class="text-danger small"></span>
+                        </div>
+                        <div class="col-sm-6">
+                            <label asp-for="Specialization" class="form-label"></label>
+                            <input asp-for="Specialization" class="form-control" placeholder="Swine Epidemiology" />
+                            <span asp-validation-for="Specialization" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="AssignedFarmId" class="form-label"></label>
+                        <select asp-for="AssignedFarmId" class="form-select">
+                            <option value="">Multi-Facility / Cross-Farm Access</option>
+                            @foreach (var farm in Model.AvailableFarms)
+                            {
+                                <option value="@farm.FarmId">@farm.Name (@farm.FarmType)</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-sm-6">
+                            <label asp-for="Password" class="form-label"></label>
+                            <input asp-for="Password" class="form-control" placeholder="••••••••" />
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+                        <div class="col-sm-6">
+                            <label asp-for="ConfirmPassword" class="form-label"></label>
+                            <input asp-for="ConfirmPassword" class="form-control" placeholder="••••••••" />
+                            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-forest w-100 py-2 fw-bold shadow-sm">
+                        <i class="fa-solid fa-check-circle me-2"></i> Register Account & Proceed
+                    </button>
+                </form>
+
+                <div class="text-center mt-4">
+                    <span class="text-muted small">Already have an authorized profile?</span>
+                    <a asp-action="Login" class="text-success small fw-bold ms-1">Sign In</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

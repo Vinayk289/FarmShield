@@ -1,0 +1,173 @@
+@model FarmShield.Models.Entities.Animal
+@{
+    ViewData["Title"] = $"Pig {Model.TagNumber} Profile";
+    int ageMonths = Math.Max(0, ((DateTime.UtcNow.Year - Model.DateOfBirth.Year) * 12) + DateTime.UtcNow.Month - Model.DateOfBirth.Month);
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <h2 class="fw-bold m-0"><i class="fa-solid fa-piggy-bank text-success me-2"></i>Pig Tag: @Model.TagNumber</h2>
+            <span class="badge @(Model.HealthCondition == FarmShield.Models.Enums.AnimalHealthStatus.Healthy ? "bg-success" : "bg-danger")">
+                @Model.HealthCondition
+            </span>
+            <span class="badge @(Model.Status == FarmShield.Models.Enums.AnimalStatus.Active ? "bg-primary" : "bg-secondary")">
+                @Model.Status
+            </span>
+        </div>
+        <p class="text-muted m-0"><i class="fa-solid fa-building me-1"></i>Facility: @Model.Farm?.Name | Housing: @Model.PenBarnNumber</p>
+    </div>
+
+    <div class="d-flex gap-2">
+        <a asp-action="Edit" asp-route-id="@Model.AnimalId" class="btn btn-forest-outline btn-sm">
+            <i class="fa-solid fa-pen me-1"></i> Edit Record
+        </a>
+        <a asp-controller="Vaccinations" asp-action="Schedule" asp-route-farmId="@Model.FarmId" class="btn btn-forest btn-sm">
+            <i class="fa-solid fa-syringe me-1"></i> Add Vaccination
+        </a>
+        <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#mortalityModal">
+            <i class="fa-solid fa-cross me-1"></i> Record Mortality
+        </button>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Main Spec Card -->
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm p-4 h-100" style="border-radius: var(--radius-md);">
+            <h5 class="fw-bold mb-3 border-bottom pb-2">Animal Biological Specifications</h5>
+            <div class="row g-3">
+                <div class="col-sm-6">
+                    <div class="p-3 bg-light rounded">
+                        <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Breed Identification</small>
+                        <div class="fw-bold fs-5 text-dark">@Model.Breed</div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="p-3 bg-light rounded">
+                        <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Livestock Category</small>
+                        <div class="fw-bold fs-5 text-dark">@Model.Category (@Model.Gender)</div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="p-3 bg-light rounded">
+                        <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Current Body Weight</small>
+                        <div class="fw-bold fs-5 text-success">@Model.CurrentWeightKg kg</div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="p-3 bg-light rounded">
+                        <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Estimated Age</small>
+                        <div class="fw-bold fs-5 text-dark">@ageMonths months (@Model.DateOfBirth.ToString("yyyy-MM-dd"))</div>
+                    </div>
+                </div>
+            </div>
+
+            <h6 class="fw-bold text-secondary mt-4 mb-2">Pedigree Lineage</h6>
+            <div class="row g-2">
+                <div class="col-sm-6">
+                    <div class="p-2 border rounded small">
+                        <strong>Dam (Mother):</strong> @(string.IsNullOrEmpty(Model.MotherTag) ? "Not Recorded / Foundation Stock" : Model.MotherTag)
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="p-2 border rounded small">
+                        <strong>Sire (Father):</strong> @(string.IsNullOrEmpty(Model.FatherTag) ? "Not Recorded / Foundation Stock" : Model.FatherTag)
+                    </div>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.Remarks))
+            {
+                <div class="mt-3 p-3 bg-warning bg-opacity-10 rounded border border-warning border-opacity-25 small">
+                    <strong>Clinical & Husbandry Notes:</strong> @Model.Remarks
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Health & Vaccination History -->
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm p-4 h-100" style="border-radius: var(--radius-md);">
+            <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                <h6 class="fw-bold m-0"><i class="fa-solid fa-syringe text-info me-2"></i>Vaccination Log (@Model.Vaccinations.Count)</h6>
+                <a asp-controller="Vaccinations" asp-action="Schedule" class="text-success small fw-semibold">Add</a>
+            </div>
+
+            @if (!Model.Vaccinations.Any())
+            {
+                <div class="text-center py-4 text-muted small">No vaccination records logged for this animal tag.</div>
+            }
+            else
+            {
+                <div class="d-flex flex-column gap-2">
+                    @foreach (var vac in Model.Vaccinations)
+                    {
+                        <div class="p-2 border rounded small">
+                            <div class="d-flex justify-content-between">
+                                <strong>@vac.VaccineName</strong>
+                                <span class="badge bg-success">@vac.Status</span>
+                            </div>
+                            <small class="text-muted">Target: @vac.DiseaseTargeted | Dose: @vac.DoseAdministered</small>
+                            <div class="text-muted" style="font-size: 0.75rem;">Administered: @vac.VaccinationDate.ToString("yyyy-MM-dd") by @vac.AdministeredBy</div>
+                        </div>
+                    }
+                </div>
+            }
+
+            <div class="d-flex justify-content-between align-items-center mt-4 mb-2 border-bottom pb-2">
+                <h6 class="fw-bold m-0 text-danger"><i class="fa-solid fa-virus-covid me-2"></i>Disease History (@Model.DiseaseReports.Count)</h6>
+                <a asp-controller="Diseases" asp-action="Report" class="text-danger small fw-semibold">Report</a>
+            </div>
+
+            @if (!Model.DiseaseReports.Any())
+            {
+                <div class="text-center py-3 text-muted small">Zero disease symptoms on record.</div>
+            }
+            else
+            {
+                <div class="d-flex flex-column gap-2">
+                    @foreach (var dis in Model.DiseaseReports)
+                    {
+                        <div class="p-2 border border-danger border-opacity-25 rounded bg-danger bg-opacity-10 small">
+                            <div class="d-flex justify-content-between">
+                                <strong class="text-danger">@dis.DiseaseName</strong>
+                                <span class="badge bg-danger">@dis.Severity</span>
+                            </div>
+                            <div class="text-muted">@dis.Symptoms</div>
+                            <small class="text-secondary">Detected: @dis.DetectionDate.ToString("yyyy-MM-dd")</small>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Mortality Modal -->
+<div class="modal fade" id="mortalityModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="fa-solid fa-triangle-exclamation me-2"></i>Record Pig Mortality</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="RecordMortality" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.AnimalId" />
+                <div class="modal-body">
+                    <p>Confirm mortality for pig tag <strong>@Model.TagNumber</strong> (@Model.Breed, @Model.CurrentWeightKg kg)?</p>
+                    <div class="mb-3">
+                        <label class="form-label">Cause of Death / Necropsy Findings</label>
+                        <textarea name="mortalityReason" class="form-control" rows="3" required placeholder="Specify primary cause of death, necropsy observation, carcass disposal method..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Confirm Mortality Record</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+

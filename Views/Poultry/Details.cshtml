@@ -1,0 +1,140 @@
+@model FarmShield.Models.Entities.PoultryBatch
+@{
+    ViewData["Title"] = $"Flock {Model.BatchCode} Insights";
+    int daysInProduction = Math.Max(0, (DateTime.UtcNow.Date - Model.HatchDate.Date).Days);
+    double cumulativeMortalityPct = Model.InitialBirdCount > 0
+        ? Math.Round(((double)Model.TotalMortality / Model.InitialBirdCount) * 100.0, 2)
+        : 0;
+
+    double totalFeedConsumed = Model.DailyLogs.Sum(l => l.FeedConsumedKg);
+    double totalWaterConsumed = Model.DailyLogs.Sum(l => l.WaterConsumedLiters);
+    int totalEggs = Model.DailyLogs.Sum(l => l.EggsCollected);
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <h2 class="fw-bold m-0"><i class="fa-solid fa-feather text-success me-2"></i>Batch: @Model.BatchCode</h2>
+            <span class="badge @(Model.PoultryType == FarmShield.Models.Enums.PoultryType.Broiler ? "bg-primary" : "bg-warning text-dark")">
+                @Model.PoultryType
+            </span>
+            <span class="badge bg-success">@Model.Status</span>
+        </div>
+        <p class="text-muted m-0">@Model.BatchName | <i class="fa-solid fa-building me-1"></i>Facility: @Model.Farm?.Name (@Model.HouseNumber)</p>
+    </div>
+
+    <div class="d-flex gap-2">
+        <a asp-action="AddDailyLog" asp-route-batchId="@Model.BatchId" class="btn btn-forest shadow-sm btn-sm">
+            <i class="fa-solid fa-plus-circle me-1"></i> Record Daily Log
+        </a>
+        <a asp-controller="Vaccinations" asp-action="Schedule" asp-route-farmId="@Model.FarmId" class="btn btn-outline-info btn-sm">
+            <i class="fa-solid fa-syringe me-1"></i> Immunize
+        </a>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+            <i class="fa-solid fa-arrow-left me-1"></i> Batches List
+        </a>
+    </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="stat-card p-3 text-center">
+            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.68rem;">Current Live Birds</small>
+            <div class="fs-2 fw-bold text-success">@Model.CurrentBirdCount.ToString("N0")</div>
+            <small class="text-muted">Placed: @Model.InitialBirdCount.ToString("N0")</small>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card p-3 text-center">
+            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.68rem;">Cumulative Mortality</small>
+            <div class="fs-2 fw-bold @(cumulativeMortalityPct > 3 ? "text-danger" : "text-dark")">@cumulativeMortalityPct%</div>
+            <small class="text-muted">@Model.TotalMortality Dead</small>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card p-3 text-center">
+            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.68rem;">Flock Age</small>
+            <div class="fs-2 fw-bold text-dark">@daysInProduction <span class="fs-6">days</span></div>
+            <small class="text-muted">Hatched: @Model.HatchDate.ToString("yyyy-MM-dd")</small>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card p-3 text-center">
+            @if (Model.PoultryType == FarmShield.Models.Enums.PoultryType.Layer)
+            {
+                <small class="text-muted text-uppercase fw-bold" style="font-size: 0.68rem;">Total Eggs Collected</small>
+                <div class="fs-2 fw-bold text-warning">@totalEggs.ToString("N0")</div>
+                <small class="text-muted">Commercial Yield</small>
+            }
+            else
+            {
+                <small class="text-muted text-uppercase fw-bold" style="font-size: 0.68rem;">Target FCR</small>
+                <div class="fs-2 fw-bold text-primary">@Model.TargetFcr</div>
+                <small class="text-muted">Feed Conversion Target</small>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Daily Logs Table -->
+<div class="card border-0 shadow-sm p-4 mb-4" style="border-radius: var(--radius-md);">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold m-0"><i class="fa-solid fa-book-open text-success me-2"></i>Daily Flock Production & Consumption History</h5>
+        <span class="badge bg-light text-dark border">@Model.DailyLogs.Count Entries</span>
+    </div>
+
+    @if (!Model.DailyLogs.Any())
+    {
+        <div class="text-center py-4 text-muted">No daily logs recorded yet for this flock.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table custom-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Mortality</th>
+                        <th>Feed Intake</th>
+                        <th>Water Intake</th>
+                        @if (Model.PoultryType == FarmShield.Models.Enums.PoultryType.Layer)
+                        {
+                            <th>Eggs Collected</th>
+                            <th>Damaged Eggs</th>
+                        }
+                        else
+                        {
+                            <th>Avg Bird Weight</th>
+                        }
+                        <th>Recorded By</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var log in Model.DailyLogs)
+                    {
+                        <tr>
+                            <td class="fw-bold">@log.LogDate.ToString("yyyy-MM-dd")</td>
+                            <td class="@(log.MortalityCount > 10 ? "text-danger fw-bold" : "")">@log.MortalityCount</td>
+                            <td>@log.FeedConsumedKg.ToString("N1") kg</td>
+                            <td>@log.WaterConsumedLiters.ToString("N0") L</td>
+                            @if (Model.PoultryType == FarmShield.Models.Enums.PoultryType.Layer)
+                            {
+                                <td class="fw-bold text-warning">@log.EggsCollected.ToString("N0")</td>
+                                <td class="text-danger">@log.DamagedEggs</td>
+                            }
+                            else
+                            {
+                                <td class="fw-bold text-success">@log.AverageWeightGrams g</td>
+                            }
+                            <td><small class="text-muted">@log.RecordedBy</small></td>
+                            <td><small class="text-secondary">@log.Notes</small></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+

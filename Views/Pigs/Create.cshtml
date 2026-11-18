@@ -1,0 +1,121 @@
+@model FarmShield.ViewModels.PigCreateEditViewModel
+@{
+    ViewData["Title"] = "Register Individual Pig";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold mb-1"><i class="fa-solid fa-tag text-success me-2"></i>Register Swine Animal</h3>
+                <p class="text-muted small m-0">Create an individual animal record with parent tags and health status.</p>
+            </div>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                <i class="fa-solid fa-arrow-left me-1"></i> Back to Herd
+            </a>
+        </div>
+
+        <div class="card border-0 shadow-sm p-4 p-md-5" style="border-radius: var(--radius-md);">
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small mb-4"></div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="FarmId" class="form-label"></label>
+                        <select asp-for="FarmId" class="form-select">
+                            @foreach (var farm in Model.AvailableFarms)
+                            {
+                                <option value="@farm.FarmId">@farm.Name</option>
+                            }
+                        </select>
+                        <span asp-validation-for="FarmId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="TagNumber" class="form-label"></label>
+                        <input asp-for="TagNumber" class="form-control fw-bold" placeholder="PG-0101" />
+                        <span asp-validation-for="TagNumber" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label asp-for="Breed" class="form-label"></label>
+                        <input asp-for="Breed" class="form-control" placeholder="Large White Yorkshire" />
+                        <span asp-validation-for="Breed" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Category" class="form-label"></label>
+                        <select asp-for="Category" class="form-select">
+                            <option value="1">Piglet</option>
+                            <option value="2" selected>Grower</option>
+                            <option value="3">Sow</option>
+                            <option value="4">Boar</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Gender" class="form-label"></label>
+                        <select asp-for="Gender" class="form-select">
+                            <option value="1">Male</option>
+                            <option value="2">Female</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label asp-for="DateOfBirth" class="form-label"></label>
+                        <input asp-for="DateOfBirth" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="CurrentWeightKg" class="form-label"></label>
+                        <div class="input-group">
+                            <input asp-for="CurrentWeightKg" class="form-control" />
+                            <span class="input-group-text">kg</span>
+                        </div>
+                        <span asp-validation-for="CurrentWeightKg" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="HealthCondition" class="form-label"></label>
+                        <select asp-for="HealthCondition" class="form-select">
+                            <option value="1">Healthy</option>
+                            <option value="2">Sick</option>
+                            <option value="3">Quarantine</option>
+                            <option value="4">Under Treatment</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="PenBarnNumber" class="form-label"></label>
+                        <input asp-for="PenBarnNumber" class="form-control" placeholder="Barn B - Pen 12" />
+                        <span asp-validation-for="PenBarnNumber" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="MotherTag" class="form-label"></label>
+                        <input asp-for="MotherTag" class="form-control" placeholder="Dam / Mother Tag" />
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="FatherTag" class="form-label"></label>
+                        <input asp-for="FatherTag" class="form-control" placeholder="Sire / Boar Tag" />
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Remarks" class="form-label"></label>
+                    <textarea asp-for="Remarks" class="form-control" rows="2" placeholder="Clinical notes, feed regimen, vaccinations..."></textarea>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-forest px-4">
+                        <i class="fa-solid fa-check me-1"></i> Save Swine Record
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+

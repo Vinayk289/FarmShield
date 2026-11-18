@@ -1,0 +1,152 @@
+@model FarmShield.ViewModels.PoultryListViewModel
+@{
+    ViewData["Title"] = "Poultry Flocks & Batches";
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">
+            <i class="fa-solid fa-feather-pointed text-success me-2"></i>Poultry Flock & Batch Management
+        </h2>
+        <p class="text-muted m-0">Broiler and layer flock placements, daily FCR, water/feed logs, and mortality curves.</p>
+    </div>
+    <a asp-action="Create" asp-route-farmId="@Model.SelectedFarmId" class="btn btn-forest shadow-sm text-nowrap">
+        <i class="fa-solid fa-plus-circle me-1"></i> Place New Batch
+    </a>
+</div>
+
+<!-- Poultry KPI Stats -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="stat-card p-3 text-center">
+            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Total Monitored Birds</small>
+            <div class="fs-2 fw-bold text-dark">@Model.TotalBirdsInFlocks.ToString("N0")</div>
+            <small class="text-success fw-semibold">Active Production</small>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card p-3 text-center">
+            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Active Broiler Batches</small>
+            <div class="fs-2 fw-bold text-primary">@Model.TotalBroilerFlocks</div>
+            <small class="text-muted">Meat Production</small>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card p-3 text-center">
+            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Active Layer Flocks</small>
+            <div class="fs-2 fw-bold text-warning">@Model.TotalLayerFlocks</div>
+            <small class="text-muted">Egg Yield Lines</small>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card p-3 text-center">
+            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Cumulative Mortality</small>
+            <div class="fs-2 fw-bold text-danger">@Model.TotalMortalityOverall</div>
+            <small class="text-muted">Within Standard Threshold</small>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card border-0 shadow-sm p-3 mb-4" style="border-radius: var(--radius-md);">
+    <form method="get" asp-action="Index" class="row g-2 align-items-center">
+        <div class="col-md-4">
+            <select name="farmId" class="form-select">
+                <option value="">All Poultry Facilities</option>
+                @foreach (var farm in Model.AvailableFarms)
+                {
+                    <option value="@farm.FarmId" selected="@(Model.SelectedFarmId == farm.FarmId)">@farm.Name</option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <select name="typeFilter" class="form-select">
+                <option value="">All Poultry Types</option>
+                <option value="1" selected="@(Model.TypeFilter == FarmShield.Models.Enums.PoultryType.Broiler)">Broiler Flocks</option>
+                <option value="2" selected="@(Model.TypeFilter == FarmShield.Models.Enums.PoultryType.Layer)">Commercial Layers</option>
+                <option value="3" selected="@(Model.TypeFilter == FarmShield.Models.Enums.PoultryType.Chicks)">Breeder Chicks / Pullets</option>
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <select name="statusFilter" class="form-select">
+                <option value="">All Batch Statuses</option>
+                <option value="1" selected="@(Model.StatusFilter == FarmShield.Models.Enums.PoultryBatchStatus.Active)">Active</option>
+                <option value="2" selected="@(Model.StatusFilter == FarmShield.Models.Enums.PoultryBatchStatus.Completed)">Completed / Depleted</option>
+            </select>
+        </div>
+
+        <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-forest flex-grow-1">Filter</button>
+            <a asp-action="Index" class="btn btn-outline-secondary"><i class="fa-solid fa-rotate-left"></i></a>
+        </div>
+    </form>
+</div>
+
+<!-- Batches Grid -->
+<div class="row g-4">
+    @if (!Model.Batches.Any())
+    {
+        <div class="col-12 text-center py-5 text-muted">
+            <i class="fa-solid fa-feather fs-2 mb-2 text-secondary"></i>
+            <div>No poultry flocks found matching current filters.</div>
+        </div>
+    }
+    else
+    {
+        @foreach (var batch in Model.Batches)
+        {
+            double mortPct = batch.InitialBirdCount > 0 ? Math.Round(((double)batch.TotalMortality / batch.InitialBirdCount) * 100.0, 2) : 0;
+            int daysPlaced = Math.Max(0, (DateTime.UtcNow.Date - batch.HatchDate.Date).Days);
+
+            <div class="col-md-6 col-xl-4">
+                <div class="card border-0 shadow-sm h-100 p-4" style="border-radius: var(--radius-md);">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge bg-dark bg-opacity-75">@batch.BatchCode</span>
+                        <span class="badge @(batch.PoultryType == FarmShield.Models.Enums.PoultryType.Broiler ? "bg-primary" : "bg-warning text-dark")">
+                            @batch.PoultryType
+                        </span>
+                    </div>
+
+                    <h5 class="fw-bold mb-1">
+                        <a asp-action="Details" asp-route-id="@batch.BatchId" class="text-dark text-decoration-none">
+                            @batch.BatchName
+                        </a>
+                    </h5>
+                    <small class="text-muted d-block mb-3"><i class="fa-solid fa-building me-1"></i>@batch.Farm?.Name | @batch.HouseNumber</small>
+
+                    <div class="row g-2 mb-3 bg-light rounded p-2 text-center small">
+                        <div class="col-4">
+                            <div class="text-muted" style="font-size: 0.68rem;">CURRENT BIRDS</div>
+                            <div class="fw-bold text-success fs-6">@batch.CurrentBirdCount.ToString("N0")</div>
+                        </div>
+                        <div class="col-4 border-start border-end">
+                            <div class="text-muted" style="font-size: 0.68rem;">FLOCK AGE</div>
+                            <div class="fw-bold text-dark fs-6">@daysPlaced days</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="text-muted" style="font-size: 0.68rem;">MORTALITY %</div>
+                            <div class="fw-bold @(mortPct > 3 ? "text-danger" : "text-dark") fs-6">@mortPct%</div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center text-muted small mb-3">
+                        <span><strong>Breed:</strong> @batch.Breed</span>
+                        <span><strong>Target FCR:</strong> @batch.TargetFcr</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top mt-auto">
+                        <a asp-action="AddDailyLog" asp-route-batchId="@batch.BatchId" class="btn btn-sm btn-outline-success">
+                            <i class="fa-solid fa-plus me-1"></i> Add Daily Log
+                        </a>
+                        <a asp-action="Details" asp-route-id="@batch.BatchId" class="btn btn-sm btn-forest">
+                            <i class="fa-solid fa-arrow-right me-1"></i> Batch Insights
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+

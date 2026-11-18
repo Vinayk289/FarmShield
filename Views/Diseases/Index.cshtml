@@ -1,0 +1,188 @@
+@model FarmShield.ViewModels.DiseaseListViewModel
+@{
+    ViewData["Title"] = "Disease Surveillance & Outbreak Center";
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">
+            <i class="fa-solid fa-virus-covid text-danger me-2"></i>Disease Surveillance & Outbreak Early Warning
+        </h2>
+        <p class="text-muted m-0">Suspected epidemiological reporting, clinical symptom tracking, and veterinary verification.</p>
+    </div>
+    <a asp-action="Report" asp-route-farmId="@Model.SelectedFarmId" class="btn btn-danger shadow-sm text-nowrap">
+        <i class="fa-solid fa-triangle-exclamation me-1"></i> Report Disease / Symptoms
+    </a>
+</div>
+
+<!-- Disease KPI Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-4">
+        <div class="stat-card p-3 text-center">
+            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.68rem;">Critical / High Outbreaks</small>
+            <div class="fs-2 fw-bold text-danger">@Model.TotalActiveOutbreaks</div>
+            <small class="text-muted">Active Pathogen Defense</small>
+        </div>
+    </div>
+    <div class="col-6 col-md-4">
+        <div class="stat-card p-3 text-center">
+            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.68rem;">Under Veterinary Investigation</small>
+            <div class="fs-2 fw-bold text-warning">@Model.TotalUnderInvestigation</div>
+            <small class="text-muted">Awaiting Lab / Swab Sequencing</small>
+        </div>
+    </div>
+    <div class="col-6 col-md-4">
+        <div class="stat-card p-3 text-center">
+            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.68rem;">Resolved Cases</small>
+            <div class="fs-2 fw-bold text-success">@Model.TotalResolvedCases</div>
+            <small class="text-muted">Quarantine Lifted / Recovered</small>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card border-0 shadow-sm p-3 mb-4" style="border-radius: var(--radius-md);">
+    <form method="get" asp-action="Index" class="row g-2 align-items-center">
+        <div class="col-md-4">
+            <select name="farmId" class="form-select">
+                <option value="">All Facilities</option>
+                @foreach (var farm in Model.AvailableFarms)
+                {
+                    <option value="@farm.FarmId" selected="@(Model.SelectedFarmId == farm.FarmId)">@farm.Name</option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <select name="severityFilter" class="form-select">
+                <option value="">All Severity Levels</option>
+                <option value="4" selected="@(Model.SeverityFilter == FarmShield.Models.Enums.DiseaseSeverity.Critical)">Critical</option>
+                <option value="3" selected="@(Model.SeverityFilter == FarmShield.Models.Enums.DiseaseSeverity.High)">High</option>
+                <option value="2" selected="@(Model.SeverityFilter == FarmShield.Models.Enums.DiseaseSeverity.Medium)">Medium</option>
+                <option value="1" selected="@(Model.SeverityFilter == FarmShield.Models.Enums.DiseaseSeverity.Low)">Low</option>
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <select name="statusFilter" class="form-select">
+                <option value="">All Verification States</option>
+                <option value="1" selected="@(Model.StatusFilter == FarmShield.Models.Enums.DiseaseVerificationStatus.Suspected)">Suspected</option>
+                <option value="2" selected="@(Model.StatusFilter == FarmShield.Models.Enums.DiseaseVerificationStatus.UnderInvestigation)">Under Investigation</option>
+                <option value="3" selected="@(Model.StatusFilter == FarmShield.Models.Enums.DiseaseVerificationStatus.Confirmed)">Confirmed Outbreak</option>
+                <option value="4" selected="@(Model.StatusFilter == FarmShield.Models.Enums.DiseaseVerificationStatus.Resolved)">Resolved / Cleared</option>
+            </select>
+        </div>
+
+        <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-forest flex-grow-1">Filter</button>
+            <a asp-action="Index" class="btn btn-outline-secondary"><i class="fa-solid fa-rotate-left"></i></a>
+        </div>
+    </form>
+</div>
+
+<!-- Cases Table -->
+<div class="card border-0 shadow-sm overflow-hidden" style="border-radius: var(--radius-md);">
+    <div class="table-responsive">
+        <table class="table custom-table mb-0">
+            <thead>
+                <tr>
+                    <th>Disease / Syndrome</th>
+                    <th>Facility</th>
+                    <th>Affected Target</th>
+                    <th>Detection Date</th>
+                    <th>Severity</th>
+                    <th>Affected / Dead</th>
+                    <th>Isolation</th>
+                    <th>Verification Status</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Reports.Any())
+                {
+                    <tr>
+                        <td colspan="9" class="text-center py-5 text-muted">
+                            <i class="fa-solid fa-shield-virus fs-2 mb-2 text-success"></i>
+                            <div>Zero disease outbreak incidents on record.</div>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var rep in Model.Reports)
+                    {
+                        <tr>
+                            <td class="fw-bold text-dark">
+                                <a asp-action="Details" asp-route-id="@rep.ReportId" class="text-decoration-none text-danger">
+                                    @rep.DiseaseName
+                                </a>
+                                <div class="text-muted small" style="font-size: 0.75rem;">@rep.DiseaseCategory</div>
+                            </td>
+                            <td><small class="badge bg-light text-dark border">@rep.Farm?.Name</small></td>
+                            <td>
+                                @if (rep.Animal != null)
+                                {
+                                    <span class="badge bg-light text-dark border"><i class="fa-solid fa-piggy-bank me-1"></i>Pig: @rep.Animal.TagNumber</span>
+                                }
+                                else if (rep.PoultryBatch != null)
+                                {
+                                    <span class="badge bg-light text-dark border"><i class="fa-solid fa-feather me-1"></i>Flock: @rep.PoultryBatch.BatchCode</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">General Facility</span>
+                                }
+                            </td>
+                            <td><small class="fw-bold">@rep.DetectionDate.ToString("yyyy-MM-dd")</small></td>
+                            <td>
+                                @switch (rep.Severity)
+                                {
+                                    case FarmShield.Models.Enums.DiseaseSeverity.Critical:
+                                        <span class="badge bg-danger">Critical</span>
+                                        break;
+                                    case FarmShield.Models.Enums.DiseaseSeverity.High:
+                                        <span class="badge bg-danger bg-opacity-75">High</span>
+                                        break;
+                                    case FarmShield.Models.Enums.DiseaseSeverity.Medium:
+                                        <span class="badge bg-warning text-dark">Medium</span>
+                                        break;
+                                    default:
+                                        <span class="badge bg-success">Low</span>
+                                        break;
+                                }
+                            </td>
+                            <td>
+                                <strong class="text-dark">@rep.AffectedCount affected</strong>
+                                @if (rep.MortalityCount > 0)
+                                {
+                                    <span class="text-danger small">(@rep.MortalityCount dead)</span>
+                                }
+                            </td>
+                            <td>
+                                @if (rep.IsolationImplemented)
+                                {
+                                    <span class="badge bg-success"><i class="fa-solid fa-lock me-1"></i> Isolated</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">No Isolation</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="badge @(rep.VerificationStatus == FarmShield.Models.Enums.DiseaseVerificationStatus.Resolved ? "bg-success" : (rep.VerificationStatus == FarmShield.Models.Enums.DiseaseVerificationStatus.Confirmed ? "bg-danger" : "bg-warning text-dark"))">
+                                    @rep.VerificationStatus
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <a asp-action="Details" asp-route-id="@rep.ReportId" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fa-solid fa-file-medical me-1"></i> Details
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+

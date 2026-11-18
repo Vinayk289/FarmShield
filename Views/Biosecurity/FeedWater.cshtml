@@ -1,0 +1,147 @@
+@{
+    ViewData["Title"] = "Feed & Water Safety Monitoring";
+    var feedRecords = ViewBag.FeedRecords as List<FarmShield.Models.Entities.FeedRecord> ?? new();
+    var waterRecords = ViewBag.WaterRecords as List<FarmShield.Models.Entities.WaterQualityRecord> ?? new();
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">
+            <i class="fa-solid fa-faucet-drip text-success me-2"></i>Pillar D: Feed & Water Biosecurity
+        </h2>
+        <p class="text-muted m-0">Consignment mold/moisture testing, water chlorination (2-4 ppm), pH tracking, and coliform testing.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="AddFeed" asp-route-farmId="@ViewBag.SelectedFarmId" class="btn btn-outline-success btn-sm">
+            <i class="fa-solid fa-wheat-awn me-1"></i> Log Feed Check
+        </a>
+        <a asp-action="AddWater" asp-route-farmId="@ViewBag.SelectedFarmId" class="btn btn-forest btn-sm">
+            <i class="fa-solid fa-flask-vial me-1"></i> Log Water Test
+        </a>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+            <i class="fa-solid fa-arrow-left me-1"></i> Hub
+        </a>
+    </div>
+</div>
+
+<!-- Water Quality Records Table -->
+<div class="card border-0 shadow-sm p-4 mb-4" style="border-radius: var(--radius-md);">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold m-0 text-primary"><i class="fa-solid fa-droplet me-2"></i>Drinking Water Laboratory & Inline Tests</h5>
+        <a asp-action="AddWater" class="btn btn-sm btn-outline-primary">Add Test</a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table custom-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Facility</th>
+                    <th>Source</th>
+                    <th>pH Level</th>
+                    <th>Free Chlorine</th>
+                    <th>TDS</th>
+                    <th>Coliform Bacteria</th>
+                    <th>Sanitization</th>
+                    <th>Safety Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var w in waterRecords)
+                {
+                    <tr>
+                        <td><small class="fw-bold">@w.TestingDate.ToString("yyyy-MM-dd")</small></td>
+                        <td><small class="badge bg-light text-dark border">@w.Farm?.Name</small></td>
+                        <td>@w.WaterSource</td>
+                        <td class="fw-bold">@w.PhLevel</td>
+                        <td><span class="badge bg-info text-white">@w.ChlorinePpm ppm</span></td>
+                        <td>@w.TdsLevel ppm</td>
+                        <td><small class="text-success fw-semibold">@w.ColiformBacterialTestResult</small></td>
+                        <td><small class="text-muted">@w.SanitizationMethod</small></td>
+                        <td>
+                            @if (w.IsPotableSafe)
+                            {
+                                <span class="badge bg-success"><i class="fa-solid fa-check me-1"></i> Potable / Safe</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger"><i class="fa-solid fa-triangle-exclamation me-1"></i> Unsafe</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Feed Consignment Inspections Table -->
+<div class="card border-0 shadow-sm p-4" style="border-radius: var(--radius-md);">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold m-0 text-success"><i class="fa-solid fa-wheat-awn me-2"></i>Bulk Feed Consignments & Silo Quality Audits</h5>
+        <a asp-action="AddFeed" class="btn btn-sm btn-outline-success">Add Consignment</a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table custom-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Facility</th>
+                    <th>Feed Description</th>
+                    <th>Lot #</th>
+                    <th>Supplier</th>
+                    <th>Quantity (kg)</th>
+                    <th>Moisture OK?</th>
+                    <th>Mold Check</th>
+                    <th>Storage Condition</th>
+                    <th>Passed?</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var f in feedRecords)
+                {
+                    <tr>
+                        <td><small class="fw-bold">@f.InspectionDate.ToString("yyyy-MM-dd")</small></td>
+                        <td><small class="badge bg-light text-dark border">@f.Farm?.Name</small></td>
+                        <td class="fw-bold text-dark">@f.FeedType</td>
+                        <td><span class="badge bg-secondary">@f.BatchLotNumber</span></td>
+                        <td>@f.SupplierName</td>
+                        <td>@f.QuantityKg.ToString("N0")</td>
+                        <td>
+                            @if (f.MoistureLevelOk)
+                            {
+                                <span class="badge bg-success">Yes (&lt; 13.5%)</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Elevated</span>
+                            }
+                        </td>
+                        <td>
+                            @if (f.NoMoldDetected)
+                            {
+                                <span class="badge bg-success">No Mold</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Fungal Spoilage</span>
+                            }
+                        </td>
+                        <td><small class="text-muted">@f.StorageSiloCondition</small></td>
+                        <td>
+                            @if (f.QualityCheckPassed)
+                            {
+                                <span class="badge bg-success">Passed</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Rejected</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

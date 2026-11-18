@@ -1,0 +1,190 @@
+@model FarmShield.ViewModels.InspectionCreateViewModel
+@{
+    ViewData["Title"] = "Conduct Digital Biosecurity Audit";
+    var categories = Model.Items.Select(i => i.Category).Distinct().ToList();
+}
+
+<form asp-action="Create" method="post" id="inspectionForm">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small mb-4"></div>
+
+    <!-- Sticky Header with Dynamic Real-Time Compliance Score Meter -->
+    <div class="card border-0 shadow-sm p-4 mb-4 sticky-top bg-white border-bottom" style="border-radius: var(--radius-md); z-index: 1020; top: 75px;">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <h4 class="fw-bold m-0"><i class="fa-solid fa-clipboard-check text-success me-2"></i>Digital Biosecurity Audit</h4>
+                    <span id="riskLevelBadge" class="badge bg-success">Low Risk (Certified)</span>
+                </div>
+                <small class="text-muted">Standard: <strong>WOAH & USDA Bio-Exclusion Matrix (20 Standards)</strong></small>
+            </div>
+
+            <!-- Real-time Meter Widget -->
+            <div class="d-flex align-items-center gap-4">
+                <div class="text-center">
+                    <div class="small text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">Compliant Items</div>
+                    <div class="fs-4 fw-bold text-success" id="compliantCount">@Model.Items.Count</div>
+                </div>
+                <div class="text-center">
+                    <div class="small text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">Violations</div>
+                    <div class="fs-4 fw-bold text-danger" id="nonCompliantCount">0</div>
+                </div>
+                <div class="text-center">
+                    <div class="small text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">Not Applicable</div>
+                    <div class="fs-4 fw-bold text-secondary" id="notApplicableCount">0</div>
+                </div>
+
+                <div style="min-width: 170px;">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <small class="text-muted fw-bold">COMPLIANCE</small>
+                        <strong class="text-success fs-5" id="compliancePercentageBadge">100.0%</strong>
+                    </div>
+                    <div class="compliance-meter" style="height: 10px;">
+                        <div class="compliance-meter-bar bg-success" id="complianceMeterBar" style="width: 100%;"></div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-forest px-4 py-2 shadow-sm text-nowrap">
+                    <i class="fa-solid fa-floppy-disk me-1"></i> Submit Official Audit
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inspector & Farm Identification Card -->
+    <div class="card border-0 shadow-sm p-4 mb-4" style="border-radius: var(--radius-md);">
+        <h5 class="fw-bold mb-3 border-bottom pb-2 text-success">
+            <i class="fa-solid fa-user-doctor me-2"></i>Audit Metadata & Inspector Credentials
+        </h5>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label asp-for="FarmId" class="form-label"></label>
+                <select asp-for="FarmId" class="form-select">
+                    @foreach (var farm in Model.AvailableFarms)
+                    {
+                        <option value="@farm.FarmId">@farm.Name (@farm.FarmType)</option>
+                    }
+                </select>
+                <span asp-validation-for="FarmId" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="InspectionDate" class="form-label"></label>
+                <input asp-for="InspectionDate" class="form-control" />
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="InspectorName" class="form-label"></label>
+                <input asp-for="InspectorName" class="form-control" />
+                <span asp-validation-for="InspectorName" class="text-danger small"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 20-Point Checklist Sections by Category -->
+    @{ int itemIndex = 0; }
+    @foreach (var cat in categories)
+    {
+        var categoryItems = Model.Items.Where(i => i.Category == cat).ToList();
+
+        <div class="checklist-category-card shadow-sm mb-4">
+            <div class="checklist-category-header">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-shield-virus text-success fs-5"></i>
+                    <h5 class="fw-bold m-0 text-dark">@cat</h5>
+                </div>
+                <span class="badge bg-light text-secondary border">@categoryItems.Count Items</span>
+            </div>
+
+            @foreach (var item in categoryItems)
+            {
+                <input type="hidden" name="Items[@itemIndex].ChecklistItemId" value="@item.ChecklistItemId" />
+                <input type="hidden" name="Items[@itemIndex].Category" value="@item.Category" />
+                <input type="hidden" name="Items[@itemIndex].ItemTitle" value="@item.ItemTitle" />
+                <input type="hidden" name="Items[@itemIndex].Description" value="@item.Description" />
+                <input type="hidden" name="Items[@itemIndex].StandardReference" value="@item.StandardReference" />
+
+                <div class="checklist-item-row">
+                    <div class="row align-items-center g-3">
+                        <div class="col-lg-6">
+                            <div class="fw-bold text-dark fs-6 mb-1">
+                                <span class="badge bg-secondary bg-opacity-25 text-dark me-2">@(itemIndex + 1)</span>
+                                @item.ItemTitle
+                            </div>
+                            <p class="text-muted small mb-1">@item.Description</p>
+                            @if (!string.IsNullOrEmpty(item.StandardReference))
+                            {
+                                <small class="text-success"><i class="fa-solid fa-bookmark me-1"></i>Standard: @item.StandardReference</small>
+                            }
+                        </div>
+
+                        <!-- 3-Choice Evaluation Radios -->
+                        <div class="col-lg-6">
+                            <div class="d-flex flex-wrap gap-3 align-items-center mb-2">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input checklist-status-radio" type="radio" name="Items[@itemIndex].Status" id="stat_c_@itemIndex" value="Compliant" checked />
+                                    <label class="form-check-label text-success fw-bold small" for="stat_c_@itemIndex">
+                                        <i class="fa-solid fa-circle-check me-1"></i> Compliant
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input checklist-status-radio" type="radio" name="Items[@itemIndex].Status" id="stat_nc_@itemIndex" value="NonCompliant" />
+                                    <label class="form-check-label text-danger fw-bold small" for="stat_nc_@itemIndex">
+                                        <i class="fa-solid fa-circle-xmark me-1"></i> Non-Compliant
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input checklist-status-radio" type="radio" name="Items[@itemIndex].Status" id="stat_na_@itemIndex" value="NotApplicable" />
+                                    <label class="form-check-label text-secondary small" for="stat_na_@itemIndex">
+                                        <i class="fa-solid fa-ban me-1"></i> Not Applicable
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <input type="text" name="Items[@itemIndex].Remarks" class="form-control form-control-sm" placeholder="Observation notes..." />
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="text" name="Items[@itemIndex].CorrectiveAction" class="form-control form-control-sm" placeholder="Remediation requirement (if non-compliant)..." />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                itemIndex++;
+            }
+        </div>
+    }
+
+    <!-- Auditor Findings & Corrective Action Orders -->
+    <div class="card border-0 shadow-sm p-4 mb-4" style="border-radius: var(--radius-md);">
+        <h5 class="fw-bold mb-3 border-bottom pb-2 text-success">
+            <i class="fa-solid fa-file-pen me-2"></i>Auditor Recommendations & Corrective Orders
+        </h5>
+
+        <div class="mb-3">
+            <label asp-for="ViolationsIdentified" class="form-label"></label>
+            <textarea asp-for="ViolationsIdentified" class="form-control" rows="2" placeholder="Summary of critical bio-exclusion breaches or procedural deviations observed..."></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Recommendations" class="form-label"></label>
+            <textarea asp-for="Recommendations" class="form-control" rows="2" placeholder="Auditor scientific recommendations for structural or procedural remediation..."></textarea>
+        </div>
+
+        <div class="mb-4">
+            <label asp-for="CorrectiveActionRequired" class="form-label"></label>
+            <textarea asp-for="CorrectiveActionRequired" class="form-control" rows="2" placeholder="Mandatory corrective actions and statutory remediation deadlines..."></textarea>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2">
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" class="btn btn-forest px-4 py-2 shadow">
+                <i class="fa-solid fa-check me-1"></i> Complete & Certify Biosecurity Audit
+            </button>
+        </div>
+    </div>
+</form>
+

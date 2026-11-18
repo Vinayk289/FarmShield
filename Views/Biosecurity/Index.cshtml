@@ -1,0 +1,214 @@
+@model FarmShield.ViewModels.BiosecurityDashboardViewModel
+@{
+    ViewData["Title"] = "Central Biosecurity Operations";
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">
+            <i class="fa-solid fa-shield-halved text-success me-2"></i>Central Biosecurity Operations Portal
+        </h2>
+        <p class="text-muted m-0">The 6 critical pillars of physical, biological, and sanitation bio-exclusion.</p>
+    </div>
+
+    <!-- Farm Filter -->
+    <form method="get" asp-action="Index" class="d-flex align-items-center gap-2">
+        <label class="form-label mb-0 text-muted small fw-semibold text-nowrap">Filter Facility:</label>
+        <select name="farmId" class="form-select form-select-sm shadow-sm" onchange="this.form.submit()" style="min-width: 220px;">
+            <option value="">All Facilities</option>
+            @foreach (var farm in Model.AvailableFarms)
+            {
+                <option value="@farm.FarmId" selected="@(Model.SelectedFarmId == farm.FarmId)">@farm.Name</option>
+            }
+        </select>
+    </form>
+</div>
+
+<!-- The 6 Pillars Command Cards -->
+<div class="row g-4 mb-4">
+    <!-- Pillar A -->
+    <div class="col-md-6 col-lg-4">
+        <div class="stat-card h-100">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="stat-icon green">
+                    <i class="fa-solid fa-id-card-clip"></i>
+                </div>
+                <span class="badge bg-success bg-opacity-10 text-success fw-bold">Pillar A</span>
+            </div>
+            <h5 class="fw-bold mb-1">Visitor & Gate Security</h5>
+            <p class="text-muted small mb-3">
+                72-hour contact rule enforcement, mandatory PPE, shower-in compliance, and vehicle tire spray arches.
+            </p>
+            <div class="d-flex justify-content-between align-items-center pt-3 border-top mt-auto">
+                <span class="fw-bold text-dark">@Model.TotalVisitorsLogged Logs</span>
+                <div class="d-flex gap-1">
+                    <a asp-action="AddVisitor" asp-route-farmId="@Model.SelectedFarmId" class="btn btn-sm btn-outline-success">Log Entry</a>
+                    <a asp-action="Visitors" asp-route-farmId="@Model.SelectedFarmId" class="btn btn-sm btn-forest">View Gate</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pillar B -->
+    <div class="col-md-6 col-lg-4">
+        <div class="stat-card h-100">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="stat-icon blue">
+                    <i class="fa-solid fa-pump-soap"></i>
+                </div>
+                <span class="badge bg-info bg-opacity-10 text-info fw-bold">Pillar B</span>
+            </div>
+            <h5 class="fw-bold mb-1">Cleaning & Disinfection</h5>
+            <p class="text-muted small mb-3">
+                Barn terminal decontamination, virucide concentrations, footbath chemical renewal, and pressure washing.
+            </p>
+            <div class="d-flex justify-content-between align-items-center pt-3 border-top mt-auto">
+                <span class="fw-bold text-dark">@Model.TotalCleaningsLogged Logs</span>
+                <div class="d-flex gap-1">
+                    <a asp-action="AddCleaning" asp-route-farmId="@Model.SelectedFarmId" class="btn btn-sm btn-outline-primary">Log Wash</a>
+                    <a asp-action="Cleaning" asp-route-farmId="@Model.SelectedFarmId" class="btn btn-sm btn-forest">View Records</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pillar C -->
+    <div class="col-md-6 col-lg-4">
+        <div class="stat-card h-100">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="stat-icon red">
+                    <i class="fa-solid fa-heart-pulse"></i>
+                </div>
+                <span class="badge bg-danger bg-opacity-10 text-danger fw-bold">Pillar C</span>
+            </div>
+            <h5 class="fw-bold mb-1">Health & Quarantine</h5>
+            <p class="text-muted small mb-3">
+                Morbidity tracking, sick pen isolation, quarantine protocols for newly introduced breeding stock.
+            </p>
+            <div class="d-flex justify-content-between align-items-center pt-3 border-top mt-auto">
+                <span class="fw-bold text-danger">Active Defense</span>
+                <div class="d-flex gap-1">
+                    <a asp-controller="Diseases" asp-action="Report" asp-route-farmId="@Model.SelectedFarmId" class="btn btn-sm btn-outline-danger">Report Case</a>
+                    <a asp-controller="Diseases" asp-action="Index" asp-route-farmId="@Model.SelectedFarmId" class="btn btn-sm btn-danger">Surveillance</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pillar D -->
+    <div class="col-md-6 col-lg-4">
+        <div class="stat-card h-100">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="stat-icon green">
+                    <i class="fa-solid fa-faucet-drip"></i>
+                </div>
+                <span class="badge bg-success bg-opacity-10 text-success fw-bold">Pillar D</span>
+            </div>
+            <h5 class="fw-bold mb-1">Feed & Water Safety</h5>
+            <p class="text-muted small mb-3">
+                Silo moisture tests, mycotoxin prevention, automated chlorine dosing, water pH, and microbial purity.
+            </p>
+            <div class="d-flex justify-content-between align-items-center pt-3 border-top mt-auto">
+                <span class="fw-bold text-dark">@(Model.TotalFeedTests + Model.TotalWaterTests) Tests</span>
+                <div class="d-flex gap-1">
+                    <a asp-action="AddWater" asp-route-farmId="@Model.SelectedFarmId" class="btn btn-sm btn-outline-success">Water Test</a>
+                    <a asp-action="FeedWater" asp-route-farmId="@Model.SelectedFarmId" class="btn btn-sm btn-forest">Feed & Water</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pillar E -->
+    <div class="col-md-6 col-lg-4">
+        <div class="stat-card h-100">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="stat-icon orange">
+                    <i class="fa-solid fa-bug-slash"></i>
+                </div>
+                <span class="badge bg-warning bg-opacity-25 text-dark fw-bold">Pillar E</span>
+            </div>
+            <h5 class="fw-bold mb-1">Pest & Rodent Control</h5>
+            <p class="text-muted small mb-3">
+                Tamper-resistant bait stations, fly larvicide treatments, and perimeter wire mesh exclusion screens.
+            </p>
+            <div class="d-flex justify-content-between align-items-center pt-3 border-top mt-auto">
+                <span class="fw-bold text-dark">@Model.TotalPestChecks Logs</span>
+                <div class="d-flex gap-1">
+                    <a asp-action="AddPestControl" asp-route-farmId="@Model.SelectedFarmId" class="btn btn-sm btn-outline-warning">Log Check</a>
+                    <a asp-action="PestControl" asp-route-farmId="@Model.SelectedFarmId" class="btn btn-sm btn-forest">IPM View</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pillar F -->
+    <div class="col-md-6 col-lg-4">
+        <div class="stat-card h-100">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="stat-icon red">
+                    <i class="fa-solid fa-dumpster-fire"></i>
+                </div>
+                <span class="badge bg-danger bg-opacity-10 text-danger fw-bold">Pillar F</span>
+            </div>
+            <h5 class="fw-bold mb-1">Waste & Carcass Containment</h5>
+            <p class="text-muted small mb-3">
+                Thermophilic composting (65°C+), incinerators, leachate barrier monitoring, and bio-waste treatment.
+            </p>
+            <div class="d-flex justify-content-between align-items-center pt-3 border-top mt-auto">
+                <span class="fw-bold text-dark">@Model.TotalWasteDisposals Logs</span>
+                <div class="d-flex gap-1">
+                    <a asp-action="AddWaste" asp-route-farmId="@Model.SelectedFarmId" class="btn btn-sm btn-outline-danger">Log Disposal</a>
+                    <a asp-action="WasteManagement" asp-route-farmId="@Model.SelectedFarmId" class="btn btn-sm btn-forest">Waste Logs</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Master Timeline of All Biosecurity Activities -->
+<div class="card border-0 shadow-sm p-4" style="border-radius: var(--radius-md);">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold m-0"><i class="fa-solid fa-clock-rotate-left text-success me-2"></i>Master Biosecurity Activity Audit Trail</h5>
+        <span class="badge bg-light text-dark border">Real-Time Database Stream</span>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table custom-table">
+            <thead>
+                <tr>
+                    <th>Date & Time</th>
+                    <th>Facility</th>
+                    <th>Pillar Category</th>
+                    <th>Activity Type</th>
+                    <th>Responsible Person</th>
+                    <th>Description</th>
+                    <th>Compliance</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var act in Model.Activities)
+                {
+                    <tr>
+                        <td><small class="fw-bold">@act.ActivityDate.ToString("yyyy-MM-dd HH:mm")</small></td>
+                        <td><span class="badge bg-light text-dark border">@act.Farm?.Name</span></td>
+                        <td><span class="badge bg-success bg-opacity-10 text-success">@act.Category</span></td>
+                        <td class="fw-semibold text-dark">@act.ActivityType</td>
+                        <td><small class="text-muted"><i class="fa-solid fa-user me-1"></i>@act.ResponsiblePerson</small></td>
+                        <td><small class="text-secondary">@act.Description</small></td>
+                        <td>
+                            @if (act.ComplianceStatus == FarmShield.Models.Enums.ComplianceStatus.Compliant)
+                            {
+                                <span class="badge bg-success"><i class="fa-solid fa-check me-1"></i>Compliant</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark"><i class="fa-solid fa-triangle-exclamation me-1"></i>@act.ComplianceStatus</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+

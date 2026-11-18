@@ -1,0 +1,109 @@
+@model FarmShield.ViewModels.PigCreateEditViewModel
+@{
+    ViewData["Title"] = $"Edit Pig {Model.TagNumber}";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold mb-1"><i class="fa-solid fa-pen-to-square text-success me-2"></i>Edit Pig @Model.TagNumber</h3>
+                <p class="text-muted small m-0">Update health condition, weight gain, or housing assignment.</p>
+            </div>
+            <a asp-action="Details" asp-route-id="@Model.AnimalId" class="btn btn-outline-secondary btn-sm">
+                <i class="fa-solid fa-arrow-left me-1"></i> Back to Profile
+            </a>
+        </div>
+
+        <div class="card border-0 shadow-sm p-4 p-md-5" style="border-radius: var(--radius-md);">
+            <form asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="AnimalId" />
+                <input type="hidden" asp-for="FarmId" />
+                <input type="hidden" asp-for="TagNumber" />
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small mb-4"></div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Tag Number (Permanent)</label>
+                        <input value="@Model.TagNumber" class="form-control fw-bold bg-light" readonly />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Breed" class="form-label"></label>
+                        <input asp-for="Breed" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label asp-for="Category" class="form-label"></label>
+                        <select asp-for="Category" class="form-select">
+                            <option value="1">Piglet</option>
+                            <option value="2">Grower</option>
+                            <option value="3">Sow</option>
+                            <option value="4">Boar</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Gender" class="form-label"></label>
+                        <select asp-for="Gender" class="form-select">
+                            <option value="1">Male</option>
+                            <option value="2">Female</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="CurrentWeightKg" class="form-label"></label>
+                        <input asp-for="CurrentWeightKg" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label asp-for="HealthCondition" class="form-label"></label>
+                        <select asp-for="HealthCondition" class="form-select">
+                            <option value="1">Healthy</option>
+                            <option value="2">Sick</option>
+                            <option value="3">Quarantine</option>
+                            <option value="4">Under Treatment</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Status" class="form-label"></label>
+                        <select asp-for="Status" class="form-select">
+                            <option value="1">Active</option>
+                            <option value="2">Sold</option>
+                            <option value="3">Culled</option>
+                            <option value="4">Deceased</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="PenBarnNumber" class="form-label"></label>
+                        <input asp-for="PenBarnNumber" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="MotherTag" class="form-label"></label>
+                        <input asp-for="MotherTag" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="FatherTag" class="form-label"></label>
+                        <input asp-for="FatherTag" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Remarks" class="form-label"></label>
+                    <textarea asp-for="Remarks" class="form-control" rows="3"></textarea>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Details" asp-route-id="@Model.AnimalId" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-forest px-4">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+

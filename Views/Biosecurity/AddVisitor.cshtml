@@ -1,0 +1,118 @@
+@model FarmShield.ViewModels.VisitorCreateViewModel
+@{
+    ViewData["Title"] = "Gate Visitor Bio-Screening";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold mb-1"><i class="fa-solid fa-id-card-clip text-success me-2"></i>Gate Visitor & Vehicle Registration</h3>
+                <p class="text-muted small m-0">Mandatory biosecurity gate entry verification protocol.</p>
+            </div>
+            <a asp-action="Visitors" class="btn btn-outline-secondary btn-sm">
+                <i class="fa-solid fa-arrow-left me-1"></i> Back to Gate
+            </a>
+        </div>
+
+        <div class="card border-0 shadow-sm p-4 p-md-5" style="border-radius: var(--radius-md);">
+            <form asp-action="AddVisitor" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small mb-4"></div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="FarmId" class="form-label"></label>
+                        <select asp-for="FarmId" class="form-select">
+                            @foreach (var farm in Model.AvailableFarms)
+                            {
+                                <option value="@farm.FarmId">@farm.Name</option>
+                            }
+                        </select>
+                        <span asp-validation-for="FarmId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="VisitorName" class="form-label"></label>
+                        <input asp-for="VisitorName" class="form-control" placeholder="Full Legal Name" />
+                        <span asp-validation-for="VisitorName" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="Organization" class="form-label"></label>
+                        <input asp-for="Organization" class="form-control" placeholder="Company, Agency or Contractor" />
+                        <span asp-validation-for="Organization" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="ContactNumber" class="form-label"></label>
+                        <input asp-for="ContactNumber" class="form-control" placeholder="+1 (555) 012-4499" />
+                        <span asp-validation-for="ContactNumber" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="PurposeOfVisit" class="form-label"></label>
+                        <input asp-for="PurposeOfVisit" class="form-control" placeholder="e.g. Bulk feed auger delivery, Vet inspection" />
+                        <span asp-validation-for="PurposeOfVisit" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="VehicleNumber" class="form-label"></label>
+                        <input asp-for="VehicleNumber" class="form-control" placeholder="License Plate (e.g. TRK-8821)" />
+                    </div>
+                </div>
+
+                <!-- High Risk 72-Hour Screening Box -->
+                <div class="p-3 mb-3 rounded border border-danger border-opacity-25 bg-danger bg-opacity-10">
+                    <div class="form-check">
+                        <input asp-for="VisitedAnotherFarmRecently" class="form-check-input" />
+                        <label asp-for="VisitedAnotherFarmRecently" class="form-check-label fw-bold text-danger"></label>
+                    </div>
+                    <div class="mt-2">
+                        <input asp-for="LastFarmVisitedDetails" class="form-control form-control-sm" placeholder="If Yes, name of facility visited and date/time of contact..." />
+                    </div>
+                </div>
+
+                <!-- Bio-Sanitation Checklist -->
+                <div class="p-3 mb-4 rounded bg-light border">
+                    <h6 class="fw-bold text-success mb-3"><i class="fa-solid fa-soap me-1"></i>Decontamination & Bio-Barrier Confirmations</h6>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="form-check">
+                                <input asp-for="DisinfectionConfirmed" class="form-check-input" />
+                                <label asp-for="DisinfectionConfirmed" class="form-check-label small"></label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check">
+                                <input asp-for="ShowerTaken" class="form-check-input" />
+                                <label asp-for="ShowerTaken" class="form-check-label small"></label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check">
+                                <input asp-for="ProtectiveClothingIssued" class="form-check-input" />
+                                <label asp-for="ProtectiveClothingIssued" class="form-check-label small"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Remarks" class="form-label"></label>
+                    <textarea asp-for="Remarks" class="form-control" rows="2" placeholder="Gate officer remarks, escort personnel assigned..."></textarea>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Visitors" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-forest px-4">
+                        <i class="fa-solid fa-id-card me-1"></i> Grant Gate Clearance
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+

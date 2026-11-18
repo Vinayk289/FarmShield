@@ -1,0 +1,95 @@
+@model FarmShield.ViewModels.PestControlCreateViewModel
+@{
+    ViewData["Title"] = "Log Pest Control Round";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold mb-1"><i class="fa-solid fa-bug-slash text-warning me-2"></i>Log Pest & Vector Surveillance</h3>
+                <p class="text-muted small m-0">Record rodent bait station inspections, fly suppression, and exclusion netting.</p>
+            </div>
+            <a asp-action="PestControl" class="btn btn-outline-secondary btn-sm">
+                <i class="fa-solid fa-arrow-left me-1"></i> Back
+            </a>
+        </div>
+
+        <div class="card border-0 shadow-sm p-4 p-md-5" style="border-radius: var(--radius-md);">
+            <form asp-action="AddPestControl" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small mb-4"></div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="FarmId" class="form-label">Facility</label>
+                        <select asp-for="FarmId" class="form-select">
+                            @foreach (var farm in Model.AvailableFarms)
+                            {
+                                <option value="@farm.FarmId">@farm.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="InspectionDate" class="form-label"></label>
+                        <input asp-for="InspectionDate" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="TargetPest" class="form-label"></label>
+                        <input asp-for="TargetPest" class="form-control" placeholder="Rodents (Rats/Mice), Houseflies, Darkling Beetles" />
+                        <span asp-validation-for="TargetPest" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="InfestationLevel" class="form-label"></label>
+                        <select asp-for="InfestationLevel" class="form-select">
+                            <option value="None" selected>None (Zero Sightings / Clear)</option>
+                            <option value="Low">Low (Isolated signs along exterior fence)</option>
+                            <option value="Moderate">Moderate (Bait consumption noted)</option>
+                            <option value="High">High (Immediate chemical eradication required)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label asp-for="BaitStationsChecked" class="form-label"></label>
+                        <input asp-for="BaitStationsChecked" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="TrapsServiced" class="form-label"></label>
+                        <input asp-for="TrapsServiced" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="NextScheduledDate" class="form-label"></label>
+                        <input asp-for="NextScheduledDate" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ChemicalOrMethodUsed" class="form-label"></label>
+                    <input asp-for="ChemicalOrMethodUsed" class="form-control" placeholder="Brodifacoum wax blocks / Cypermethrin perimeter spray" />
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label asp-for="InspectorName" class="form-label"></label>
+                        <input asp-for="InspectorName" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="CorrectiveActionTaken" class="form-label"></label>
+                        <input asp-for="CorrectiveActionTaken" class="form-control" placeholder="Sealed drain hole, renewed perimeter mesh" />
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="PestControl" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-forest px-4">Save Pest Log</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+

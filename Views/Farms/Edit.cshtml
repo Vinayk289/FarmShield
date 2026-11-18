@@ -1,0 +1,117 @@
+@model FarmShield.ViewModels.FarmCreateEditViewModel
+@{
+    ViewData["Title"] = "Edit Farm Profile";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold mb-1"><i class="fa-solid fa-pen-to-square text-success me-2"></i>Edit Farm Profile</h3>
+                <p class="text-muted small m-0">Update facility operational parameters, capacities, and contact metadata.</p>
+            </div>
+            <a asp-action="Details" asp-route-id="@Model.FarmId" class="btn btn-outline-secondary btn-sm">
+                <i class="fa-solid fa-arrow-left me-1"></i> Back to Profile
+            </a>
+        </div>
+
+        <div class="card border-0 shadow-sm p-4 p-md-5" style="border-radius: var(--radius-md);">
+            <form asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="FarmId" />
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small mb-4"></div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="Name" class="form-label"></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="FarmType" class="form-label"></label>
+                        <select asp-for="FarmType" class="form-select">
+                            <option value="1">Pig Farm</option>
+                            <option value="2">Poultry Farm</option>
+                            <option value="3">Mixed Production</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="Status" class="form-label"></label>
+                        <select asp-for="Status" class="form-select">
+                            <option value="1">Active</option>
+                            <option value="2">Under Audit</option>
+                            <option value="3">Quarantine</option>
+                            <option value="4">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="OwnerName" class="form-label"></label>
+                        <input asp-for="OwnerName" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="BioSafetyLevel" class="form-label"></label>
+                        <select asp-for="BioSafetyLevel" class="form-select">
+                            <option value="1">Level 1 (Standard)</option>
+                            <option value="2">Level 2 (Enhanced)</option>
+                            <option value="3">Level 3 (Maximum Containment)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Address" class="form-label"></label>
+                    <input asp-for="Address" class="form-control" />
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label asp-for="District" class="form-label"></label>
+                        <input asp-for="District" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="State" class="form-label"></label>
+                        <input asp-for="State" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="ContactNumber" class="form-label"></label>
+                        <input asp-for="ContactNumber" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <label asp-for="Email" class="form-label"></label>
+                        <input asp-for="Email" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="FarmAreaAcres" class="form-label"></label>
+                        <input asp-for="FarmAreaAcres" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="TotalCapacity" class="form-label"></label>
+                        <input asp-for="TotalCapacity" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label"></label>
+                    <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="ImageUrl" class="form-label"></label>
+                    <input asp-for="ImageUrl" class="form-control" />
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Details" asp-route-id="@Model.FarmId" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-forest px-4">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
