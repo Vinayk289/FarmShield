@@ -15,7 +15,7 @@
 
 **FarmShield** is an enterprise-grade digital farm management and biosecurity platform built specifically for modern pig and poultry operations. It automates compliance audits, gate controls, and real-time disease surveillance.
 
-This is a **college academic capstone project** designed to look and function like a real-world agricultural technology SaaS platform.
+This is a **college academic project** designed to look and function like a real-world agricultural technology SaaS platform.
 
 ---
 
@@ -147,4 +147,5 @@ FarmShield/
 
 ## 📄 License
 
-This project is submitted as an academic capstone project. All rights reserved © 2025 FarmShield.
+This project is submitted as an academic project. All rights reserved © 2025 FarmShield.
+
